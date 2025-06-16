@@ -1,84 +1,76 @@
-"use client";
+"use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useState } from "react";
-import { Search, Calendar as CalendarIcon, Plus } from "lucide-react";
-import Link from "next/link";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Calendar as CalendarIcon, ArrowLeft } from "lucide-react"
+import Link from "next/link"
 
-export default function ReservationsPage() {
-  const [date, setDate] = useState<Date | undefined>(new Date());
-
+export default function ReservationHistoryPage() {
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">予約管理</h2>
-        <div className="flex items-center space-x-2">
-          <Link href="/reservations/status">
-            <Button>
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              予約状況
+        <div className="flex items-center space-x-4">
+          <Link href="/reservations">
+            <Button variant="outline" size="icon">
+              <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            新規予約
-          </Button>
+          <h2 className="text-3xl font-bold tracking-tight">予約履歴</h2>
         </div>
+        <Link href="/reservations/status">
+          <Button>
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            予約状況
+          </Button>
+        </Link>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">本日の予約</CardTitle>
+            <CardTitle className="text-sm font-medium">総予約数</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
+            <div className="text-2xl font-bold">1,234</div>
             <p className="text-xs text-muted-foreground">
-              前日比 +2
+              前月比 +123
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">今週の予約</CardTitle>
+            <CardTitle className="text-sm font-medium">完了済み</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">45</div>
+            <div className="text-2xl font-bold">1,100</div>
             <p className="text-xs text-muted-foreground">
-              前週比 +5
+              前月比 +98
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">今月の予約</CardTitle>
+            <CardTitle className="text-sm font-medium">キャンセル</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">180</div>
+            <div className="text-2xl font-bold">134</div>
             <p className="text-xs text-muted-foreground">
-              前月比 +12
+              前月比 +25
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">キャンセル率</CardTitle>
+            <CardTitle className="text-sm font-medium">平均予約数</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3.2%</div>
+            <div className="text-2xl font-bold">41.1</div>
             <p className="text-xs text-muted-foreground">
-              前月比 -0.5%
+              前月比 +4.1
             </p>
           </CardContent>
         </Card>
@@ -86,7 +78,7 @@ export default function ReservationsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>予約一覧</CardTitle>
+          <CardTitle>予約履歴一覧</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-2 mb-4">
@@ -95,13 +87,14 @@ export default function ReservationsPage() {
             </div>
             <Select>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="ステータス" />
+                <SelectValue placeholder="期間" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">すべて</SelectItem>
-                <SelectItem value="pending">保留中</SelectItem>
-                <SelectItem value="confirmed">確定</SelectItem>
-                <SelectItem value="cancelled">キャンセル</SelectItem>
+                <SelectItem value="today">今日</SelectItem>
+                <SelectItem value="week">今週</SelectItem>
+                <SelectItem value="month">今月</SelectItem>
+                <SelectItem value="year">今年</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -117,19 +110,19 @@ export default function ReservationsPage() {
             </TableHeader>
             <TableBody>
               <TableRow>
-                <TableCell>2024-03-20 14:00</TableCell>
-                <TableCell>山田太郎</TableCell>
+                <TableCell>2024-03-19 14:00</TableCell>
+                <TableCell>佐藤一郎</TableCell>
                 <TableCell>2名</TableCell>
-                <TableCell>確定</TableCell>
+                <TableCell>完了</TableCell>
                 <TableCell>
                   <Button variant="outline" size="sm">詳細</Button>
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>2024-03-20 15:30</TableCell>
-                <TableCell>鈴木花子</TableCell>
+                <TableCell>2024-03-18 15:30</TableCell>
+                <TableCell>田中花子</TableCell>
                 <TableCell>4名</TableCell>
-                <TableCell>保留中</TableCell>
+                <TableCell>キャンセル</TableCell>
                 <TableCell>
                   <Button variant="outline" size="sm">詳細</Button>
                 </TableCell>
@@ -139,5 +132,5 @@ export default function ReservationsPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 } 

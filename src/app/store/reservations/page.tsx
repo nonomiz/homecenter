@@ -10,6 +10,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
 import { Search, Filter, Calendar as CalendarIcon, Plus } from "lucide-react"
+import Link from "next/link"
 
 export default function ReservationsPage() {
   const [date, setDate] = useState<Date | undefined>(new Date())
@@ -23,10 +24,12 @@ export default function ReservationsPage() {
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">予約管理</h2>
         <div className="flex items-center space-x-2">
-          <Button>
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            カレンダー表示
-          </Button>
+          <Link href="/store/reservations/calendar">
+            <Button>
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              カレンダー表示
+            </Button>
+          </Link>
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             新規予約
