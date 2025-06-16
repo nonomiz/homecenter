@@ -1,15 +1,25 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter as FontSans } from "next/font/google";
+import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ["latin"] });
+const fontSans = FontSans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+const notoSansJP = Noto_Sans_JP({
+  subsets: ["latin"],
+  variable: "--font-noto-sans-jp",
+  weight: ["400", "500", "700"],
+});
 
 export const metadata: Metadata = {
-  title: "예약 관리 시스템",
-  description: "점포 예약 관리 시스템",
+  title: "予約管理システム",
+  description: "店舗予約管理システム",
 };
 
 export default function RootLayout({
@@ -18,11 +28,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" suppressHydrationWarning>
-      <body className={cn(
-        "min-h-screen bg-background font-sans antialiased",
-        inter.className
-      )}>
+    <html lang="ja" suppressHydrationWarning>
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          fontSans.variable,
+          notoSansJP.variable
+        )}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
