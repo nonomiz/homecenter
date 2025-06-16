@@ -81,12 +81,18 @@ export default function ReservationsPage() {
             <div className="mt-4">
               <h3 className="mb-2 text-sm font-medium">예약 가능 시간</h3>
               <div className="grid grid-cols-3 gap-2">
+                <Button variant="outline" size="sm">09:00</Button>
                 <Button variant="outline" size="sm">10:00</Button>
                 <Button variant="outline" size="sm">11:00</Button>
                 <Button variant="outline" size="sm">12:00</Button>
                 <Button variant="outline" size="sm">13:00</Button>
                 <Button variant="outline" size="sm">14:00</Button>
                 <Button variant="outline" size="sm">15:00</Button>
+                <Button variant="outline" size="sm">16:00</Button>
+                <Button variant="outline" size="sm">17:00</Button>
+                <Button variant="outline" size="sm">18:00</Button>
+                <Button variant="outline" size="sm">19:00</Button>
+                <Button variant="outline" size="sm">20:00</Button>
               </div>
             </div>
           </CardContent>
