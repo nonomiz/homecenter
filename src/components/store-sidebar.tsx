@@ -3,61 +3,73 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Store, Calendar, Users, Settings, LogOut } from "lucide-react"
+import { LayoutDashboard, Calendar, Settings, LogOut, BarChart2, Search as SearchIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+
+interface StoreData {
+  id: string
+  name: string
+  // 기타 점포 정보
+}
+
+interface StoreSidebarProps {
+  storeData: StoreData
+}
 
 const sidebarNavItems = [
   // {
   //   title: "ダッシュボード",
-  //   href: "/admin",
+  //   href: "/store",
   //   icon: LayoutDashboard,
   // },
   {
-    title: "店舗管理",
-    href: "/admin/stores",
-    icon: Store,
+    title: "予約管理",
+    href: "/store/reservations",
+    icon: Calendar,
   },
-  // {
-  //   title: "予約管理",
-  //   href: "/admin/reservations",
-  //   icon: Calendar,
-  // },
-  // {
-  //   title: "ユーザー管理",
-  //   href: "/admin/users",
-  //   icon: Users,
-  // },
-  // {
-  //   title: "設定",
-  //   href: "/admin/settings",
-  //   icon: Settings,
-  // },
+  {
+    title: "予約検索",
+    href: "/store/reservations/search",
+    icon: SearchIcon,
+  },
+  {
+    title: "レポート",
+    href: "/store/report",
+    icon: BarChart2,
+  },
+  {
+    title: "設定",
+    href: "/store/settings",
+    icon: Settings,
+  },
+  
+  
 ]
 
-export function Sidebar() {
+export function Sidebar({ storeData }: StoreSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
 
+  console.log("storeData", storeData)
+
   const handleLogout = () => {
-    sessionStorage.removeItem("adminLoggedIn")
-    sessionStorage.removeItem("adminToken")
-    sessionStorage.removeItem("adminId")
-    router.push("/admin/login")
+    sessionStorage.removeItem("storeToken")
+    sessionStorage.removeItem("storeId")
+    router.push("/")
   }
 
   return (
     <div className="hidden border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 lg:block lg:w-64">
       <div className="flex h-full flex-col gap-2">
         <div className="flex h-[60px] items-center justify-between border-b border-zinc-200 dark:border-zinc-800 px-6 bg-white dark:bg-zinc-900">
-          <Link href="/admin" className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
-            <span>管理者</span>
-          </Link>
+          <div className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
+            <span>{storeData.name}</span>
+          </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={handleLogout}
             className="h-8 w-8 p-0 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-900 dark:hover:text-white"
-            aria-label="로그아웃"
           >
             <LogOut className="h-4 w-4" />
           </Button>

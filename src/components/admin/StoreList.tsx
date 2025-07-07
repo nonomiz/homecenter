@@ -32,7 +32,7 @@ interface Store {
 }
 
 export function StoreList() {
-  const [stores, setStores] = useState<Store[]>([
+  const [stores, _] = useState<Store[]>([
     {
       id: "1",
       name: "스타벅스 강남점",

@@ -1,9 +1,11 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Calendar, Settings } from "lucide-react";
+import { Sidebar } from "@/components/store-sidebar";
 
 const sidebarNavItems = [
   {
@@ -23,47 +25,94 @@ const sidebarNavItems = [
   },
 ];
 
+interface StoreData {
+  id: string;
+  name: string;
+  // 기타 점포 정보
+}
+
 export default function StoreLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const pathname = usePathname();
+  const [storeData, setStoreData] = useState<StoreData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = sessionStorage.getItem("storeToken");
+      const storeId = sessionStorage.getItem("storeId");
+
+      // 로그인 페이지가 아닌데 토큰이 없으면 로그인 페이지로 리다이렉트
+      if (!token || !storeId) {
+        if (pathname !== "/store/login") {
+          router.push("/store/login");
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      // 로그인 페이지인데 토큰이 있으면 대시보드로 리다이렉트
+      if (pathname === "/store/login") {
+        router.push("/store");
+        setIsLoading(false);
+        return;
+      }
+
+      // 점포 정보 가져오기
+      try {
+        const response = await fetch(`http://192.168.0.116:3000/shop_detail`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ shop_id: storeId }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setStoreData(data.data[0]);
+
+          console.log(data);
+        } else {
+          // 토큰이 유효하지 않으면 로그인 페이지로 리다이렉트
+          sessionStorage.removeItem("storeToken");
+          sessionStorage.removeItem("storeId");
+          router.push("/store/login");
+        }
+      } catch (error) {
+        console.error("Failed to fetch store data:", error);
+        router.push("/store/login");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [pathname, router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-lg">読み込み中...</div>
+      </div>
+    );
+  }
+
+  // 로그인 페이지는 사이드바 없이 렌더링
+  if (pathname === "/store/login") {
+    return <>{children}</>;
+  }
+
+  // 점포 정보가 없어도 페이지는 렌더링
   return (
     <div className="flex min-h-screen">
-      <div className="hidden border-r bg-gray-100/40 lg:block lg:w-64">
-        <div className="flex h-full flex-col gap-2">
-          <div className="flex h-[60px] items-center border-b px-6">
-            <Link href="/store" className="flex items-center gap-2 font-semibold">
-              <span>점포 관리</span>
-            </Link>
-          </div>
-          <div className="flex-1 overflow-auto py-2">
-            <nav className="grid items-start px-4 text-sm font-medium">
-              {sidebarNavItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900",
-                      pathname === item.href
-                        ? "bg-gray-100 text-gray-900"
-                        : "text-gray-500"
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.title}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-        </div>
-      </div>
-      <div className="flex-1">{children}</div>
+      <Sidebar storeData={storeData || { id: "", name: "" }} />
+      <main className="flex-1">{children}</main>
     </div>
   );
 } 

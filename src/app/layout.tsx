@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -49,28 +50,28 @@ export default function RootLayout({
             <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <div className="container flex h-14 items-center">
                 <div className="mr-4 flex">
-                  <a className="mr-6 flex items-center space-x-2" href="/">
-                    <span className="font-bold">예약 시스템</span>
-                  </a>
+                  <Link className="mr-6 flex items-center space-x-2" href="/">
+                    <span className="font-bold">予約</span>
+                  </Link>
                   <nav className="flex items-center space-x-6 text-sm font-medium">
-                    <a
-                      href="/store"
+                    <Link
+                      href="/store/reservations"
                       className="transition-colors hover:text-foreground/80 text-foreground/60"
                     >
-                      점포
-                    </a>
-                    <a
+                      店舗
+                    </Link>
+                    {/* <a
                       href="/reservations"
                       className="transition-colors hover:text-foreground/80 text-foreground/60"
                     >
                       예약
-                    </a>
-                    <a
-                      href="/admin"
+                    </a> */}
+                    <Link
+                      href="/admin/stores"
                       className="transition-colors hover:text-foreground/80 text-foreground/60"
                     >
-                      관리자
-                    </a>
+                      管理者
+                    </Link>
                   </nav>
                 </div>
               </div>

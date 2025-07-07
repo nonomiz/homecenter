@@ -8,8 +8,66 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MapPin, Clock, Bell, Shield, Image as ImageIcon } from "lucide-react"
+import { useEffect, useState } from "react"
 
 export default function SettingsPage() {
+  const [storeInfo, setStoreInfo] = useState({
+    shop_id: "",
+    email: "",
+    name: "",
+    address: "",
+    phone1: "",
+    password: ""
+  });
+
+  useEffect(() => {
+    const fetchStoreInfo = async () => {      
+      const storeId = sessionStorage.getItem("storeId");
+      if (!storeId) return;
+      const response = await fetch("http://192.168.0.116:3000/shop_detail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shop_id: storeId })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        setStoreInfo(data.data[0]);
+      }
+    };
+    fetchStoreInfo();
+  }, []);
+
+  const handleSave = async () => {
+    console.log("Save...")
+
+    const storeId = sessionStorage.getItem("storeId");
+    if (!storeId) {
+      alert("Store ID is missing.");
+      return;
+    }
+    try {
+      const response = await fetch("http://192.168.0.116:3000/shop_edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          shop_id: storeId,
+          name: storeInfo.name,
+          address: storeInfo.address,
+          phone1: storeInfo.phone1
+        })
+      });
+      if (response.ok) {
+        alert("保存しました。");
+      } else {
+        alert("保存に失敗しました。");
+      }
+    } catch (error) {
+      alert("エラーが発生しました。");
+      console.error(error);
+    }
+  };
+
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -17,13 +75,13 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="general" className="space-y-4">
-        <TabsList>
+        {/* <TabsList>
           <TabsTrigger value="general">基本情報</TabsTrigger>
           <TabsTrigger value="hours">営業時間</TabsTrigger>
           <TabsTrigger value="images">画像</TabsTrigger>
           <TabsTrigger value="notifications">通知</TabsTrigger>
           <TabsTrigger value="security">セキュリティ</TabsTrigger>
-        </TabsList>
+        </TabsList> */}
 
         <TabsContent value="general" className="space-y-4">
           <Card>
@@ -32,28 +90,75 @@ export default function SettingsPage() {
               <CardDescription>店舗の基本情報を設定します</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="storeId">店舗ID</Label>
+                <Input
+                  id="storeId"
+                  value={sessionStorage.getItem("storeId") || ""}
+                  readOnly
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">パスワード</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="パスワードを入力"
+                  value={storeInfo.password}
+                  onChange={e => setStoreInfo({ ...storeInfo, password: e.target.value })}
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="name">店舗名</Label>
-                <Input id="name" placeholder="店舗名を入力" />
+                <Input
+                  id="name"
+                  placeholder="店舗名を入力"
+                  value={storeInfo.name}
+                  onChange={e => setStoreInfo({ ...storeInfo, name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">EMail</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="EMailを入力"
+                  value={storeInfo.email}
+                  onChange={e => setStoreInfo({ ...storeInfo, email: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="address">住所</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="address"
+                    placeholder="住所を入力"
+                    value={storeInfo.address}
+                    onChange={e => setStoreInfo({ ...storeInfo, address: e.target.value })}
+                  />
+                  {/* <Button variant="outline" size="icon">
+                    <MapPin className="h-4 w-4" />
+                  </Button> */}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">電話番号</Label>
+                <Input
+                  id="phone"
+                  placeholder="電話番号を入力"
+                  value={storeInfo.phone1}
+                  onChange={e => setStoreInfo({ ...storeInfo, phone1: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">説明</Label>
                 <Textarea id="description" placeholder="店舗の説明を入力" />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">住所</Label>
-                <div className="flex gap-2">
-                  <Input id="address" placeholder="住所を入力" />
-                  <Button variant="outline" size="icon">
-                    <MapPin className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">電話番号</Label>
-                <Input id="phone" placeholder="電話番号を入力" />
-              </div>
-              <Button>保存</Button>
+              {/* <div className="space-y-2">
+                <Label htmlFor="password">パスワード</Label>
+                <Input id="password" placeholder="パスワード" value={storeInfo.password} type="password" />
+              </div> */}
+              <Button onClick={handleSave}>保存</Button>
             </CardContent>
           </Card>
         </TabsContent>

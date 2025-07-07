@@ -11,7 +11,7 @@ interface ReservationStore extends ReservationState {
   setSelectedReservation: (reservation: Reservation | null) => void;
 }
 
-export const useReservationStore = create<ReservationStore>((set, get) => ({
+export const useReservationStore = create<ReservationStore>((set, _) => ({
   reservations: [],
   selectedReservation: null,
   isLoading: false,

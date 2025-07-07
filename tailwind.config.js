@@ -16,6 +16,9 @@ module.exports = {
       },
     },
     extend: {
+      fontSize: {
+        base: "1.125rem",
+      },
       fontFamily: {
         sans: ["var(--font-noto-sans-jp)"],
       },

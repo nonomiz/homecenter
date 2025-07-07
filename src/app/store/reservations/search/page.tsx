@@ -26,6 +26,7 @@ interface ReservationHistoryItem {
 }
 
 export default function ReservationsPage() {
+  const [form, setForm] = useState({ email: "", phone: "", name: "" })
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [reservations, setReservations] = useState<ReservationHistoryItem[]>([]);
@@ -56,25 +57,16 @@ export default function ReservationsPage() {
 
   // 예약 목록 새로고침 함수
   const refreshReservationList = async () => {
-    // const formattedDate = format(new Date(), 'yyyy-MM-dd')
-    let formattedDate;
-    if (date) {
-      formattedDate = format(date, 'yyyy-MM-dd')
-    }
-    
+    const formattedDate = format(new Date(), 'yyyy-MM-dd')
     const storeId = sessionStorage.getItem('storeId');
-    let sendData: any = {
-      shop_id: storeId,
-    };
-    if (formattedDate) {
-      sendData["res_date"] = formattedDate;
-    }
-
     const response = await fetch(`http://192.168.0.116:3000/mypage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: "include",
-      body: JSON.stringify(sendData)
+      body: JSON.stringify({
+        shop_id: storeId,
+        //res_date: formattedDate
+      })
     });
     const jsonBody = await response.json();
     setReservations(jsonBody.data);
@@ -155,8 +147,8 @@ export default function ReservationsPage() {
   };
 
   useEffect(() => {
-    refreshReservationList();
-  }, [date])
+    // refreshReservationList();
+  }, [])
 
   // 오늘 예약 수 계산
   const todayReservationsCount = reservations ? reservations.length : 0;
@@ -169,127 +161,55 @@ export default function ReservationsPage() {
     ? ((cancelledReservations.length / reservations.length) * 100).toFixed(1)
     : '0.0';
 
+  // 실제 검색 로직은 추후 구현
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const formattedDate = format(new Date(), 'yyyy-MM-dd')
+    const storeId = sessionStorage.getItem('storeId');
+    const response = await fetch(`http://192.168.0.116:3000/search_reservation`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: "include",
+      body: JSON.stringify({
+        shop_id: storeId,
+        res_date: formattedDate,
+        phone: form.phone,
+        name: form.name,
+        email: form.email
+      })
+    });
+    const jsonBody = await response.json();
+    console.log(jsonBody);
+    // e.preventDefault()
+    setReservations(jsonBody.data);
+
+  }
+
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">予約管理</h2>
-        <div className="flex items-center space-x-2">
-          {/* <Link href="/store/reservations/calendar">
-            <Button>
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              カレンダー表示
-            </Button>
-          </Link> */}
-          <Link href="/store/reservations/new">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              新規予約
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {/* <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">本日の予約</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{todayReservationsCount}</div>
-            <p className="text-xs text-muted-foreground">
-              前日比 +2
-            </p>
-          </CardContent>
-        </Card> */}
-        {/* <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">今週の予約</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">45</div>
-            <p className="text-xs text-muted-foreground">
-              前週比 +5
-            </p>
-          </CardContent>
-        </Card> */}
-        {/* <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">今月の予約</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">180</div>
-            <p className="text-xs text-muted-foreground">
-              前月比 +12
-            </p>
-          </CardContent>
-        </Card> */}
-        {/* <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">キャンセル率</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{cancellationRate}%</div>
-            <p className="text-xs text-muted-foreground">
-              前月比 -0.5%
-            </p>
-          </CardContent>
-        </Card> */}
-      </div>
-
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="col-span-4">
           <CardHeader>
-            <CardTitle>予約一覧</CardTitle>
+            <CardTitle>予約検索</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-4 mb-4">
               <div className="flex items-center gap-2 mb-4">
-                <Popover
-                  open={calendarOpen}
-                  onOpenChange={setCalendarOpen}
-                >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-[200px] justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "yyyy-MM-dd", { locale: ja }) : "날짜 선택"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={(selected) => {
-                        setDate(selected)
-                        setCalendarOpen(false)
-                      }}
-                      locale={ja}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <Input
-                  placeholder="予約者名で検索"
-                  value={nameFilter}
-                  onChange={e => setNameFilter(e.target.value)}
-                  className="w-[180px]"
-                />
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="ステータス" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">すべて</SelectItem>
-                    <SelectItem value="0">予約中</SelectItem>
-                    <SelectItem value="1">完了</SelectItem>
-                    <SelectItem value="9">キャンセル</SelectItem>
-                  </SelectContent>
-                </Select>
+                <form onSubmit={handleSearch} className="flex flex-wrap gap-4 items-end mb-6">
+                  <div className="flex items-center gap-2">
+                    <label className="w-24 text-right font-medium" htmlFor="search-email">EMail</label>
+                    <Input id="search-email" className="bg-yellow-400 text-white font-semibold" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="w-24 text-right font-medium" htmlFor="search-phone">電話</label>
+                    <Input id="search-phone" className="bg-yellow-400 text-white font-semibold" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="w-24 text-right font-medium" htmlFor="search-name">予約者</label>
+                    <Input id="search-name" className="bg-yellow-400 text-white font-semibold" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                  </div>
+                  <Button type="submit" className="h-10 px-8">検索</Button>
+                </form>
               </div>
             </div>
             <Table>

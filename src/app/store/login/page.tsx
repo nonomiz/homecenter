@@ -7,35 +7,52 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle } from "lucide-react"
 
-export default function AdminLoginPage() {
+export default function StoreLoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setIsLoading(true)
 
-    // TODO: 실제 로그인 API 연동
-    if (email === "admin@example.com" && password === "admin123") {
-      // 로그인 성공 시 세션 저장
-      sessionStorage.setItem("adminLoggedIn", "true")
-      router.push("/admin/stores")
-    } else {
-      setError("メールアドレスまたはパスワードが正しくありません。")
+    try {
+      const response = await fetch("http://192.168.0.116:3000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        sessionStorage.setItem("storeToken", "1234"/*data.token*/)
+        sessionStorage.setItem("storeId", username/*data.storeId*/)
+        router.push("/store/reservations")
+      } else {
+        setError(data.message || "ログインに失敗しました")
+      }
+    } catch (error) {
+      setError("ログイン中にエラーが発生しました")
+    } finally {
+      setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="flex min-h-screen items-center justify-center">
       <Card className="w-[400px]">
         <CardHeader>
-          <CardTitle>管理者ログイン</CardTitle>
+          <CardTitle>店舗ログイン</CardTitle>
           <CardDescription>
-            管理者アカウントでログインしてください。
+            店舗アカウントでログインしてください
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -44,10 +61,10 @@ export default function AdminLoginPage() {
               <Label htmlFor="email">メールアドレス</Label>
               <Input
                 id="email"
-                type="email"
-                placeholder="admin@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                placeholder="example@store.com"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
@@ -63,12 +80,11 @@ export default function AdminLoginPage() {
             </div>
             {error && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <Button type="submit" className="w-full">
-              ログイン
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "ログイン中..." : "ログイン"}
             </Button>
           </form>
         </CardContent>

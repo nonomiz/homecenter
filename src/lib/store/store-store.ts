@@ -11,7 +11,7 @@ interface StoreStore extends StoreState {
   setSelectedStore: (store: Store | null) => void;
 }
 
-export const useStoreStore = create<StoreStore>((set, get) => ({
+export const useStoreStore = create<StoreStore>((set, _) => ({
   stores: [],
   selectedStore: null,
   isLoading: false,
