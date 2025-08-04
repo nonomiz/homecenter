@@ -14,6 +14,7 @@ import { Search, Filter, Calendar as CalendarIcon, Plus } from "lucide-react"
 import Link from "next/link"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
+import { API_URL } from "@/lib/inc/constants"
 
 interface ReservationHistoryItem {
   res_no?: any;
@@ -59,7 +60,7 @@ export default function ReservationsPage() {
   const refreshReservationList = async () => {
     const formattedDate = format(new Date(), 'yyyy-MM-dd')
     const storeId = sessionStorage.getItem('storeId');
-    const response = await fetch(`http://192.168.0.116:3000/mypage`, {
+    const response = await fetch(`${API_URL}/mypage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: "include",
@@ -89,7 +90,7 @@ export default function ReservationsPage() {
   // 예약 완료 처리
   const handleCompleteReservation = async (resNo: any) => {
     try {
-      const response = await fetch(`http://192.168.0.116:3000/work_complete_reservation`, {
+      const response = await fetch(`${API_URL}/work_complete_reservation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
@@ -128,7 +129,7 @@ export default function ReservationsPage() {
   // 예약 취소 처리
   const handleCancelReservation = async (resNo: any) => {
     try {
-      const response = await fetch(`http://192.168.0.116:3000/cancel_reservation`, {
+      const response = await fetch(`${API_URL}/cancel_reservation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
@@ -166,7 +167,7 @@ export default function ReservationsPage() {
     e.preventDefault();
     const formattedDate = format(new Date(), 'yyyy-MM-dd')
     const storeId = sessionStorage.getItem('storeId');
-    const response = await fetch(`http://192.168.0.116:3000/search_reservation`, {
+    const response = await fetch(`${API_URL}/search_reservation`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: "include",
@@ -195,19 +196,20 @@ export default function ReservationsPage() {
           <CardContent>
             <div className="flex flex-col gap-4 mb-4">
               <div className="flex items-center gap-2 mb-4">
-                <form onSubmit={handleSearch} className="flex flex-wrap gap-4 items-end mb-6">
+                <form onSubmit={handleSearch} className="flex flex-wrap gap-4 items-end mb-2">
                   <div className="flex items-center gap-2">
-                    <label className="w-24 text-right font-medium" htmlFor="search-email">EMail</label>
-                    <Input id="search-email" className="bg-yellow-400 text-white font-semibold" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+                    <label className="w-24 text-right" htmlFor="search-name">予約者名</label>
+                    <Input id="search-name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
                   </div>
                   <div className="flex items-center gap-2">
-                    <label className="w-24 text-right font-medium" htmlFor="search-phone">電話</label>
-                    <Input id="search-phone" className="bg-yellow-400 text-white font-semibold" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+                    <label className="w-24 text-right" htmlFor="search-email">メール</label>
+                    <Input id="search-email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
                   </div>
                   <div className="flex items-center gap-2">
-                    <label className="w-24 text-right font-medium" htmlFor="search-name">予約者</label>
-                    <Input id="search-name" className="bg-yellow-400 text-white font-semibold" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                    <label className="w-24 text-right" htmlFor="search-phone">電話</label>
+                    <Input id="search-phone" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
                   </div>
+                  
                   <Button type="submit" className="h-10 px-8">検索</Button>
                 </form>
               </div>
@@ -215,10 +217,10 @@ export default function ReservationsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>予約番号</TableHead>
-                  <TableHead>予約日時</TableHead>
-                  <TableHead>予約者</TableHead>
-                  <TableHead>EMail</TableHead>
+                  <TableHead>日時</TableHead>
+                  <TableHead>時間</TableHead>
+                  <TableHead>予約者名</TableHead>
+                  <TableHead>メール</TableHead>
                   <TableHead>電話</TableHead>
                   <TableHead>ステータス</TableHead>
                   <TableHead>操作</TableHead>
@@ -251,10 +253,10 @@ export default function ReservationsPage() {
                     .map((reservation) => (
                       <TableRow key={reservation.res_no}>
                         <TableCell>
-                          #{reservation.res_no}
+                          {format(reservation.res_date, 'yyyy-MM-dd')}
                         </TableCell>
                         <TableCell>
-                          {format(reservation.res_date, 'yyyy-MM-dd')} {reservation.res_time}
+                          {reservation.res_time}
                         </TableCell>
                         <TableCell>{reservation.from_name}</TableCell>
                         <TableCell>{reservation.from_email}</TableCell>
@@ -313,17 +315,18 @@ export default function ReservationsPage() {
       <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <DialogContent className="w-[400px] max-w-[90vw]" onInteractOutside={e => e.preventDefault()}>
           <DialogHeader className="text-center">
-            <DialogTitle>確認</DialogTitle>
+            <DialogTitle>予約完了</DialogTitle>
             <DialogDescription>
-              作業を完了しますか？
+              
             </DialogDescription>
           </DialogHeader>
+          <div className="text-center">予約された作業を完了しますか？</div>
           <div className="flex justify-evenly gap-4 mt-6">
-            <Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>
-              キャンセル
-            </Button>
             <Button onClick={handleConfirmComplete}>
               確認
+            </Button>
+            <Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>
+              キャンセル
             </Button>
           </div>
         </DialogContent>
@@ -333,18 +336,20 @@ export default function ReservationsPage() {
       <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
         <DialogContent className="w-[400px] max-w-[90vw]" onInteractOutside={e => e.preventDefault()}>
           <DialogHeader className="text-center">
-            <DialogTitle>確認</DialogTitle>
+            <DialogTitle>予約キャンセル</DialogTitle>
             <DialogDescription>
-              予約をキャンセルしますか？
+              
             </DialogDescription>
           </DialogHeader>
+
+          <div className="text-center">予約をキャンセルしますか？</div>
           <div className="flex justify-evenly gap-4 mt-6">
-            <Button variant="outline" onClick={() => setCancelDialogOpen(false)}>
-              キャンセル
-            </Button>
             <Button onClick={handleConfirmCancel}>
               確認
             </Button>
+            <Button variant="outline" onClick={() => setCancelDialogOpen(false)}>
+              キャンセル
+            </Button>            
           </div>
         </DialogContent>
       </Dialog>

@@ -12,6 +12,10 @@ import { format, isToday, isBefore, setHours, setMinutes } from "date-fns"
 import { ja } from "date-fns/locale"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { API_URL } from "@/lib/inc/constants"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar as CalendarIcon } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface ReservationForm {
   date: Date | undefined
@@ -19,6 +23,7 @@ interface ReservationForm {
   name: string
   email: string
   phone: string
+  battery: string
 }
 
 interface ReservedTime {
@@ -35,6 +40,7 @@ export default function NewReservationForm() {
     name: "",
     email: "",
     phone: "",
+    battery: "",
   })
   const [reservedTimes, setReservedTimes] = useState<ReservedTime[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -50,6 +56,7 @@ export default function NewReservationForm() {
     message: '',
     type: 'success'
   })
+  const [calendarOpen, setCalendarOpen] = useState(false)
 
   // 운영시간 09:00 ~ 20:00
   const timeSlots = Array.from({ length: 12 }, (_, i) => {
@@ -64,7 +71,7 @@ export default function NewReservationForm() {
     setIsLoading(true)
     try {
       const formattedDate = format(date, "yyyy-MM-dd")
-      const response = await fetch(`http://192.168.0.116:3000/get_reservation_times`, {
+      const response = await fetch(`${API_URL}/get_reservation_times`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
@@ -144,12 +151,13 @@ export default function NewReservationForm() {
         res_time: form.time,
         from_name: form.name,
         from_email: form.email,
-        from_phone: form.phone
+        from_phone: form.phone,
+        battery: form.battery
       };
 
       console.log(postData);
 
-      const response = await fetch('http://192.168.0.116:3000/add_reservation', {
+      const response = await fetch(`${API_URL}/add_reservation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
@@ -194,17 +202,17 @@ export default function NewReservationForm() {
   }
 
   return (
-    <div className="flex-1 space-y-4 sm:p-8 p-2 sm:pt-6 pt-2">
-      <div className="flex items-center justify-between space-y-2">
+    <div className="flex-1 space-y-4 sm:pt-6 pt-2">
+      {/* <div className="flex items-center justify-between space-y-2">
         <div className="flex items-center space-x-2">
-          <Link href={`/`}>
-            <Button variant="outline" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
+
           <h2 className="text-3xl font-bold tracking-tight">新規予約</h2>
         </div>
-      </div>
+      </div> */}
+
+      <header className="sticky top-0 z-10 bg-background border-b py-4">
+        <h1 className="text-center text-2xl font-semibold">新規予約</h1>
+      </header>
 
       <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-md md:max-w-3xl mx-auto">
         <Card className="w-full max-w-md md:max-w-3xl mx-auto">
@@ -213,29 +221,46 @@ export default function NewReservationForm() {
           </CardHeader>
           <CardContent className="space-y-4 sm:p-4 p-2">
             <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 min-w-0">
-              <div>
-                <Calendar
-                  mode="single"
-                  selected={form.date}
-                  onSelect={(date) => {
-                    setForm({ ...form, date, time: "" }) // 날짜가 변경되면 시간 선택 초기화
-                  }}
-                  className="rounded-md border"
-                  locale={ja}
-                  disabled={(date) => {
-                    let result = false;
-                    let today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    if (date < today) {
-                      result = true;
-                    }
-                    return (result);
-                  }}
-                />
+              <div style={{display: "flex", justifyContent: "center"}}>
+                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-[200px] justify-start text-left font-normal",
+                        !form.date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {form.date ? format(form.date, "yyyy-MM-dd", { locale: ja }) : "날짜 선택"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={form.date}
+                      onSelect={(date) => {
+                        setForm({ ...form, date, time: "" }) // 날짜가 변경되면 시간 선택 초기화
+                        setCalendarOpen(false)
+                      }}
+                      className="rounded-md border"
+                      locale={ja}
+                      disabled={(date) => {
+                        let result = false;
+                        let today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        if (date < today) {
+                          result = true;
+                        }
+                        return result;
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">時間</label>
+                <div className="px-6 flex justify-center">
+                  {/* <label className="text-sm font-medium">時間</label> */}
                   <Select
                     value={form.time}
                     onValueChange={(value) => setForm({ ...form, time: value })}
@@ -252,7 +277,11 @@ export default function NewReservationForm() {
                       ))}
                     </SelectContent>
                   </Select>
-                  {form.date && isToday(form.date) && (
+                  
+                </div>
+              </div>
+              {/* <div>
+              {form.date && isToday(form.date) && (
                     <p className="text-sm text-muted-foreground mt-2">
                       現在時刻より前の時間は選択できません
                     </p>
@@ -262,8 +291,7 @@ export default function NewReservationForm() {
                       予約済みの時間は選択できません
                     </p>
                   )}
-                </div>
-              </div>
+              </div> */}
             </div>
           </CardContent>
         </Card>
@@ -306,15 +334,27 @@ export default function NewReservationForm() {
                   pattern="([0-9]{2}-[0-9]{4}-[0-9]{4}|[0-9]{3}-[0-9]{4}-[0-9]{4})"
                 />
               </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">バッテリ情報</label>
+                <Input
+                  type="text"
+                  value={form.battery}
+                  onChange={(e) => setForm({ ...form, battery: e.target.value })}
+                  placeholder="12V 30A"
+                  required
+                  minLength={2}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <div className="flex justify-end space-x-2 w-full max-w-md mx-auto">
+        <div className="item-centers space-x-2 p-4 w-full max-w-md mx-auto">
+          <Button className="w-full space-y-2 mb-2" type="submit">予約確定</Button>
           <Link href={`/`}>
-            <Button variant="outline">キャンセル</Button>
+            <Button className="w-full space-y-2" variant="outline">ホーム</Button>
           </Link>
-          <Button type="submit">予約作成</Button>
+          
         </div>
       </form>
 

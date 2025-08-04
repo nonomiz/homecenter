@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { LayoutDashboard, Store, Calendar, Users, Settings, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { API_ADMIN_URL } from "@/lib/inc/constants"
 
 const sidebarNavItems = [
   // {
@@ -27,18 +28,27 @@ const sidebarNavItems = [
   //   href: "/admin/users",
   //   icon: Users,
   // },
-  // {
-  //   title: "設定",
-  //   href: "/admin/settings",
-  //   icon: Settings,
-  // },
+  {
+    title: "設定",
+    href: "/admin/settings",
+    icon: Settings,
+  },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    let adminId = sessionStorage.getItem("adminId");
+    const res = await fetch(`${API_ADMIN_URL}/gclogout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include', // 쿠키 포함 필수!!!
+      body: JSON.stringify({ adminId: adminId })
+    });
+    console.log(res);
+
     sessionStorage.removeItem("adminLoggedIn")
     sessionStorage.removeItem("adminToken")
     sessionStorage.removeItem("adminId")

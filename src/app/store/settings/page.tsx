@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MapPin, Clock, Bell, Shield, Image as ImageIcon } from "lucide-react"
 import { useEffect, useState } from "react"
+import { API_URL } from "@/lib/inc/constants"
 
 export default function SettingsPage() {
   const [storeInfo, setStoreInfo] = useState({
@@ -17,29 +18,30 @@ export default function SettingsPage() {
     name: "",
     address: "",
     phone1: "",
-    password: ""
+    password: "",
+    descriptions: ""
   });
 
   useEffect(() => {
     const fetchStoreInfo = async () => {      
       const storeId = sessionStorage.getItem("storeId");
       if (!storeId) return;
-      const response = await fetch("http://192.168.0.116:3000/shop_detail", {
+      const response = await fetch(`${API_URL}/shop_detail`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ shop_id: storeId })
       });
       if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-        setStoreInfo(data.data[0]);
+        const jsonData = await response.json();
+        console.log(jsonData);
+        setStoreInfo(jsonData.data);
       }
     };
     fetchStoreInfo();
   }, []);
 
   const handleSave = async () => {
-    console.log("Save...")
+    console.log("Save...", storeInfo)
 
     const storeId = sessionStorage.getItem("storeId");
     if (!storeId) {
@@ -47,14 +49,17 @@ export default function SettingsPage() {
       return;
     }
     try {
-      const response = await fetch("http://192.168.0.116:3000/shop_edit", {
+      const response = await fetch(`${API_URL}/shop_edit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           shop_id: storeId,
           name: storeInfo.name,
+          password: storeInfo.password,
           address: storeInfo.address,
-          phone1: storeInfo.phone1
+          phone: storeInfo.phone1,
+          email: storeInfo.email,
+          desc: storeInfo.descriptions
         })
       });
       if (response.ok) {
@@ -118,11 +123,11 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">EMail</Label>
+                <Label htmlFor="email">メール</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="EMailを入力"
+                  placeholder="メールを入力"
                   value={storeInfo.email}
                   onChange={e => setStoreInfo({ ...storeInfo, email: e.target.value })}
                 />
@@ -152,12 +157,11 @@ export default function SettingsPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">説明</Label>
-                <Textarea id="description" placeholder="店舗の説明を入力" />
+                <Textarea id="description" placeholder="店舗の説明を入力"
+                  value={storeInfo.descriptions}
+                  onChange={e => setStoreInfo({ ...storeInfo, descriptions: e.target.value })}
+                />
               </div>
-              {/* <div className="space-y-2">
-                <Label htmlFor="password">パスワード</Label>
-                <Input id="password" placeholder="パスワード" value={storeInfo.password} type="password" />
-              </div> */}
               <Button onClick={handleSave}>保存</Button>
             </CardContent>
           </Card>

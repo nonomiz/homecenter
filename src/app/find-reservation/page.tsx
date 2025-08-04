@@ -22,17 +22,17 @@ export default function FindReservationPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="sticky top-0 z-10 bg-background border-b py-4">
-        <h1 className="text-center text-2xl font-semibold">예약 찾기</h1>
+        <h1 className="text-center text-2xl font-semibold">予約検索</h1>
       </header>
       <main className="flex-1 flex flex-col items-center justify-center px-4">
         <Card className="w-full max-w-md shadow-md">
           <CardHeader>
-            <CardTitle className="text-center text-xl">예약 정보 입력</CardTitle>
+            <CardTitle className="text-center text-xl">予約情報入力</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block mb-1 text-sm font-medium">이메일</label>
+                <label className="block mb-1 text-sm font-medium">EMail</label>
                 <Input
                   type="email"
                   
@@ -43,7 +43,7 @@ export default function FindReservationPage() {
                 />
               </div>
               <div>
-                <label className="block mb-1 text-sm font-medium">전화번호</label>
+                <label className="block mb-1 text-sm font-medium">電話</label>
                 <Input
                   type="tel"
                   
@@ -54,9 +54,9 @@ export default function FindReservationPage() {
                 />
               </div>
               <div className="flex flex-col gap-3 pt-2">
-                <Button type="submit" className="w-full">송신</Button>
+                <Button type="submit" className="w-full">検索</Button>
                 <Link href="/" className="w-full">
-                  <Button type="button" variant="outline" className="w-full">홈으로</Button>
+                  <Button type="button" variant="outline" className="w-full">ホーム</Button>
                 </Link>
               </div>
             </form>

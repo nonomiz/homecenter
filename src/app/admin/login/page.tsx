@@ -8,10 +8,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
+import { API_ADMIN_URL } from "@/lib/inc/constants"
 
 export default function AdminLoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState("")
+  const [id, setId] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
 
@@ -20,12 +21,24 @@ export default function AdminLoginPage() {
     setError("")
 
     // TODO: 실제 로그인 API 연동
-    if (email === "admin@example.com" && password === "admin123") {
+    const res = await fetch(`${API_ADMIN_URL}/gclogin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include', // 쿠키 포함 필수!!!
+      body: JSON.stringify({ username: id, password: password })
+    });
+
+    const jsonBody = await res.json(); // 응답을 JSON으로 변환
+    console.log(jsonBody); // 응답 JSON 확인
+
+    if (res.ok) {
       // 로그인 성공 시 세션 저장
       sessionStorage.setItem("adminLoggedIn", "true")
+      sessionStorage.setItem("adminToken", jsonBody.data.token)
+      sessionStorage.setItem("adminId", id)
       router.push("/admin/stores")
     } else {
-      setError("メールアドレスまたはパスワードが正しくありません。")
+      setError("IDまたはパスワードが正しくありません。")
     }
   }
 
@@ -35,19 +48,19 @@ export default function AdminLoginPage() {
         <CardHeader>
           <CardTitle>管理者ログイン</CardTitle>
           <CardDescription>
-            管理者アカウントでログインしてください。
+            
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">メールアドレス</Label>
+              <Label htmlFor="email">ID</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="admin@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="id"
+                type="text"
+                placeholder="admin"
+                value={id}
+                onChange={(e) => setId(e.target.value)}
                 required
               />
             </div>

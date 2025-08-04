@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { API_URL } from "@/lib/inc/constants"
 
 export default function StoreLoginPage() {
   const router = useRouter()
@@ -22,18 +23,21 @@ export default function StoreLoginPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch("http://192.168.0.116:3000/login", {
+      const response = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({
+          shop_id: username,
+          password: password
+        }),
       })
 
       const data = await response.json()
 
       if (response.ok) {
-        sessionStorage.setItem("storeToken", "1234"/*data.token*/)
+        sessionStorage.setItem("storeToken", data.data.token)
         sessionStorage.setItem("storeId", username/*data.storeId*/)
         router.push("/store/reservations")
       } else {
@@ -58,11 +62,11 @@ export default function StoreLoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">メールアドレス</Label>
+              <Label htmlFor="email">ID</Label>
               <Input
-                id="email"
+                id="shop_id"
                 type="text"
-                placeholder="example@store.com"
+                placeholder="store1"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required

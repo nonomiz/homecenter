@@ -1,143 +1,160 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { MapPin, Clock, Bell, Shield, Image as ImageIcon } from "lucide-react"
+import { useEffect, useState } from "react"
+import { API_ADMIN_URL, API_URL } from "@/lib/inc/constants"
 
-export default function AdminSettingsPage() {
+export default function SettingsPage() {
+  const [adminInfo, setAdminInfo] = useState({
+    shop_id: "",
+    email: "",
+    name: "",
+    address: "",
+    phone1: "",
+    password: "",
+    descriptions: ""
+  });
+
+  useEffect(() => {
+    // TODO: 管理者情報を取得する。
+    const fetchStoreInfo = async () => {      
+      const adminId = sessionStorage.getItem("adminId");
+      if (!adminId) return;
+      const response = await fetch(`${API_ADMIN_URL}/admin_detail`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adminId: adminId })
+      });
+      if (response.ok) {
+        const jsonData = await response.json();
+        console.log(jsonData);
+        setAdminInfo(jsonData.data || {});
+      }
+    };
+    fetchStoreInfo();
+  }, []);
+
+  const handleSave = async () => {
+    console.log("Save...")
+
+    const storeId = sessionStorage.getItem("adminId");
+    if (!storeId) {
+      alert("Store ID is missing.");
+      return;
+    }
+    try {
+      const response = await fetch(`${API_URL}/shop_edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          shop_id: storeId,
+          name: adminInfo.name,
+          password: adminInfo.password,
+          address: adminInfo.address,
+          phone: adminInfo.phone1,
+          email: adminInfo.email,
+          desc: adminInfo.descriptions
+        })
+      });
+      if (response.ok) {
+        alert("保存しました。");
+      } else {
+        alert("保存に失敗しました。");
+      }
+    } catch (error) {
+      alert("エラーが発生しました。");
+      console.error(error);
+    }
+  };
+
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">설정</h2>
+        <h2 className="text-3xl font-bold tracking-tight">設定</h2>
       </div>
-      <Tabs defaultValue="general" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="general">일반 설정</TabsTrigger>
-          <TabsTrigger value="notifications">알림 설정</TabsTrigger>
-          <TabsTrigger value="security">보안 설정</TabsTrigger>
-        </TabsList>
-        <TabsContent value="general" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>시스템 설정</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-2">
-                <Label>사이트 이름</Label>
-                <Input defaultValue="예약 관리 시스템" />
-              </div>
-              <div className="grid gap-2">
-                <Label>관리자 이메일</Label>
-                <Input type="email" defaultValue="admin@example.com" />
-              </div>
-              <div className="grid gap-2">
-                <Label>시간대</Label>
-                <Input defaultValue="Asia/Seoul" />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch id="maintenance" />
-                <Label htmlFor="maintenance">유지보수 모드</Label>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>예약 설정</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-2">
-                <Label>최소 예약 시간 (분)</Label>
-                <Input type="number" defaultValue="30" />
-              </div>
-              <div className="grid gap-2">
-                <Label>최대 예약 인원</Label>
-                <Input type="number" defaultValue="10" />
-              </div>
-              <div className="grid gap-2">
-                <Label>예약 가능 기간 (일)</Label>
-                <Input type="number" defaultValue="30" />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="notifications" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>알림 설정</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>이메일 알림</Label>
-                  <p className="text-sm text-muted-foreground">
-                    새로운 예약이나 취소 시 이메일로 알림을 받습니다.
-                  </p>
-                </div>
-                <Switch defaultChecked />
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>SMS 알림</Label>
-                  <p className="text-sm text-muted-foreground">
-                    중요한 알림을 SMS로 받습니다.
-                  </p>
-                </div>
-                <Switch />
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>푸시 알림</Label>
-                  <p className="text-sm text-muted-foreground">
-                    실시간 푸시 알림을 받습니다.
-                  </p>
-                </div>
-                <Switch defaultChecked />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="security" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>보안 설정</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-2">
-                <Label>현재 비밀번호</Label>
-                <Input type="password" />
-              </div>
-              <div className="grid gap-2">
-                <Label>새 비밀번호</Label>
-                <Input type="password" />
-              </div>
-              <div className="grid gap-2">
-                <Label>새 비밀번호 확인</Label>
-                <Input type="password" />
-              </div>
-              <Button>비밀번호 변경</Button>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>2단계 인증</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>2단계 인증 활성화</Label>
-                  <p className="text-sm text-muted-foreground">
-                    로그인 시 추가 인증을 요구합니다.
-                  </p>
-                </div>
-                <Switch />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+
+      <Card>
+        <CardHeader>
+          <CardTitle></CardTitle>
+          <CardDescription></CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex space-x-2 align-middle">
+            <Label className="w-[140px] text-right" htmlFor="storeId">管理者ID</Label>
+            <Input
+              id="storeId"
+              value={sessionStorage.getItem("adminId") || ""}
+              readOnly
+            />
+          </div>
+          <div className="flex space-x-2 align-middle">
+            <Label className="w-[140px] text-right" htmlFor="password">パスワード</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="パスワードを入力"
+              value={adminInfo.password}
+              onChange={e => setAdminInfo({ ...adminInfo, password: e.target.value })}
+            />
+          </div>
+          <div className="flex space-x-2 align-middle">
+            <Label className="w-[140px] text-right" htmlFor="name">管理者名</Label>
+            <Input
+              id="name"
+              placeholder="管理者名を入力"
+              value={adminInfo.name}
+              onChange={e => setAdminInfo({ ...adminInfo, name: e.target.value })}
+            />
+          </div>
+          <div className="flex space-x-2 align-middle">
+            <Label className="w-[140px] text-right" htmlFor="email">メール</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="メールを入力"
+              value={adminInfo.email}
+              onChange={e => setAdminInfo({ ...adminInfo, email: e.target.value })}
+            />
+          </div>
+          <div className="flex space-x-2 align-middle">
+            <Label className="w-[140px] text-right" htmlFor="address">住所</Label>
+            <Input
+              id="address"
+              placeholder="住所を入力"
+              value={adminInfo.address}
+              onChange={e => setAdminInfo({ ...adminInfo, address: e.target.value })}
+            />
+              {/* <Button variant="outline" size="icon">
+                <MapPin className="h-4 w-4" />
+              </Button> */}
+          </div>
+          <div className="flex space-x-2 align-middle">
+            <Label className="w-[140px] text-right" htmlFor="phone">電話番号</Label>
+            <Input
+              id="phone"
+              placeholder="電話番号を入力"
+              value={adminInfo.phone1}
+              onChange={e => setAdminInfo({ ...adminInfo, phone1: e.target.value })}
+            />
+          </div>
+          <div className="flex space-x-2 align-middle">
+            <Label className="w-[140px] text-right" htmlFor="description">説明</Label>
+            <Textarea id="description" placeholder="管理者の説明を入力" 
+              value={adminInfo.descriptions}
+              onChange={e => setAdminInfo({ ...adminInfo, descriptions: e.target.value })}
+            
+            />
+          </div>
+          <Button onClick={handleSave}>保存</Button>
+        </CardContent>
+      </Card>
     </div>
   )
 } 

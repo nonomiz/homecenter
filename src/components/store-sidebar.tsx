@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { LayoutDashboard, Calendar, Settings, LogOut, BarChart2, Search as SearchIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { API_URL } from "@/lib/inc/constants"
 
 interface StoreData {
   id: string
@@ -52,10 +53,19 @@ export function Sidebar({ storeData }: StoreSidebarProps) {
 
   console.log("storeData", storeData)
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    let storeId = sessionStorage.getItem("storeId");
+    const res = await fetch(`${API_URL}/logout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include', // 쿠키 포함 필수!!!
+      body: JSON.stringify({ shop_id: storeId })
+    });
+    console.log(res);
+
     sessionStorage.removeItem("storeToken")
     sessionStorage.removeItem("storeId")
-    router.push("/")
+    router.push("/store/login")
   }
 
   return (

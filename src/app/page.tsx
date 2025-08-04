@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, MapPin, Clock, Star, Calendar, Users, Phone, Book } from "lucide-react"
 import Link from "next/link"
+import { API_URL } from "@/lib/inc/constants"
 
 interface Store {
   shop_id: string
@@ -30,7 +31,7 @@ export default function Home() {
   const fetchStores = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://192.168.0.116:3000/shop_list', {
+      const response = await fetch(`${API_URL}/shop_list`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
@@ -72,6 +73,47 @@ export default function Home() {
         <div className="text-lg">読み込み中...</div>
       </div>
     );
+  }
+
+  const showShopList = () => {
+    const useTest = true;
+
+    if (filteredStores.length < 1) {
+      return (<div>店舗リストがありません。</div>);
+    }
+
+    return filteredStores.map((store) => (
+      // <Link key={store.shop_id} href={`/user_reservations/${store.shop_id}`} className="block">
+      <div key={store.shop_id}>
+        <Card className="transition-shadow hover:shadow-lg">
+          <CardHeader>
+            <CardTitle>{store.name}</CardTitle>
+            <CardDescription className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              <span>{store.address}</span>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4" />
+                <span>{store.phone1}</span>
+              </div>
+              {/* <div className="flex items-center gap-1">
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                <span>4.5</span>
+              </div> */}
+            </div>
+            <div className="flex items-center justify-center">
+              <Link href={`/user_reservations/${store.shop_id}`}>
+                <Button>店舗情報</Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+        </div>
+      // </Link>
+    ))
   }
 
   return (
@@ -162,31 +204,7 @@ export default function Home() {
                 </TabsList>
                 <TabsContent value="popular" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"> */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredStores.map((store) => (
-                    <Link key={store.shop_id} href={`/user_reservations/${store.shop_id}`} className="block">
-                      <Card className="cursor-pointer transition-shadow hover:shadow-lg">
-                        <CardHeader>
-                          <CardTitle>{store.name}</CardTitle>
-                          <CardDescription className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            <span>{store.address}</span>
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
-                              <Phone className="h-4 w-4" />
-                              <span>{store.phone1}</span>
-                            </div>
-                            {/* <div className="flex items-center gap-1">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <span>4.5</span>
-                            </div> */}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
+                  {showShopList()}
                   </div>
                 {/* </TabsContent>
               </Tabs> */}

@@ -60,12 +60,6 @@ export default function RootLayout({
                     >
                       店舗
                     </Link>
-                    {/* <a
-                      href="/reservations"
-                      className="transition-colors hover:text-foreground/80 text-foreground/60"
-                    >
-                      예약
-                    </a> */}
                     <Link
                       href="/admin/stores"
                       className="transition-colors hover:text-foreground/80 text-foreground/60"

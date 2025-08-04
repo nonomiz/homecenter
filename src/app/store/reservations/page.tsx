@@ -10,10 +10,11 @@ import { Calendar } from "@/components/ui/calendar"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { format, isSameDay, parseISO } from "date-fns"
 import { ja } from "date-fns/locale"
-import { Search, Filter, Calendar as CalendarIcon, Plus } from "lucide-react"
+import { Search, Filter, Calendar as CalendarIcon, Plus, RefreshCcw } from "lucide-react"
 import Link from "next/link"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
+import { API_URL } from "@/lib/inc/constants"
 
 interface ReservationHistoryItem {
   res_no?: any;
@@ -31,6 +32,8 @@ export default function ReservationsPage() {
   const [reservations, setReservations] = useState<ReservationHistoryItem[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [nameFilter, setNameFilter] = useState<string>("");
+  const [emailFilter, setEmailFilter] = useState<string>("");
+  const [phoneFilter, setPhoneFilter] = useState<string>("");
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [selectedResNo, setSelectedResNo] = useState<any>(null);
@@ -70,7 +73,7 @@ export default function ReservationsPage() {
       sendData["res_date"] = formattedDate;
     }
 
-    const response = await fetch(`http://192.168.0.116:3000/mypage`, {
+    const response = await fetch(`${API_URL}/mypage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: "include",
@@ -97,7 +100,7 @@ export default function ReservationsPage() {
   // 예약 완료 처리
   const handleCompleteReservation = async (resNo: any) => {
     try {
-      const response = await fetch(`http://192.168.0.116:3000/work_complete_reservation`, {
+      const response = await fetch(`${API_URL}/work_complete_reservation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
@@ -136,7 +139,7 @@ export default function ReservationsPage() {
   // 예약 취소 처리
   const handleCancelReservation = async (resNo: any) => {
     try {
-      const response = await fetch(`http://192.168.0.116:3000/cancel_reservation`, {
+      const response = await fetch(`${API_URL}/cancel_reservation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
@@ -172,7 +175,7 @@ export default function ReservationsPage() {
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">予約管理</h2>
+        <h2 className="text-3xl font-bold tracking-tight"></h2>
         <div className="flex items-center space-x-2">
           {/* <Link href="/store/reservations/calendar">
             <Button>
@@ -257,7 +260,7 @@ export default function ReservationsPage() {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "yyyy-MM-dd", { locale: ja }) : "날짜 선택"}
+                      {date ? format(date, "yyyy-MM-dd", { locale: ja }) : "日付選択"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -279,6 +282,18 @@ export default function ReservationsPage() {
                   onChange={e => setNameFilter(e.target.value)}
                   className="w-[180px]"
                 />
+                <Input
+                  placeholder="メールで検索"
+                  className="w-[180px]"
+                  value={emailFilter}
+                  onChange={e => setEmailFilter(e.target.value)}
+                />
+                <Input
+                  placeholder="電話で検索"
+                  className="w-[180px]"
+                  value={phoneFilter}
+                  onChange={e => setPhoneFilter(e.target.value)}
+                />
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="ステータス" />
@@ -290,15 +305,20 @@ export default function ReservationsPage() {
                     <SelectItem value="9">キャンセル</SelectItem>
                   </SelectContent>
                 </Select>
+                <Button onClick={() => refreshReservationList()}>
+                  <RefreshCcw className="mr-2 h-4 w-4"/>
+                  更新
+                </Button>
               </div>
             </div>
+            <div className="max-h-[500px] overflow-y-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>予約番号</TableHead>
-                  <TableHead>予約日時</TableHead>
-                  <TableHead>予約者</TableHead>
-                  <TableHead>EMail</TableHead>
+                  <TableHead>日時</TableHead>
+                  <TableHead>時間</TableHead>
+                  <TableHead>予約者名</TableHead>
+                  <TableHead>メール</TableHead>
                   <TableHead>電話</TableHead>
                   <TableHead>ステータス</TableHead>
                   <TableHead>操作</TableHead>
@@ -321,9 +341,29 @@ export default function ReservationsPage() {
                       }
                       // name filter
                       if (nameFilter && reservation.from_name) {
-                        return reservation.from_name.includes(nameFilter);
+                        if (!reservation.from_name.includes(nameFilter)) {
+                          return false;
+                        }
                       }
                       if (nameFilter && !reservation.from_name) {
+                        return false;
+                      }
+                      // email filter
+                      if (emailFilter && reservation.from_email) {
+                        if (!reservation.from_email.includes(emailFilter)) {
+                          return false;
+                        }
+                      }
+                      if (emailFilter && !reservation.from_email) {
+                        return false;
+                      }
+                      // phone filter
+                      if (phoneFilter && reservation.from_phone) {
+                        if (!reservation.from_phone.includes(phoneFilter)) {
+                          return false;
+                        }
+                      }
+                      if (phoneFilter && !reservation.from_phone) {
                         return false;
                       }
                       return true;
@@ -331,10 +371,10 @@ export default function ReservationsPage() {
                     .map((reservation) => (
                       <TableRow key={reservation.res_no}>
                         <TableCell>
-                          #{reservation.res_no}
+                          {format(reservation.res_date, 'yyyy-MM-dd')}
                         </TableCell>
                         <TableCell>
-                          {format(reservation.res_date, 'yyyy-MM-dd')} {reservation.res_time}
+                          {reservation.res_time}
                         </TableCell>
                         <TableCell>{reservation.from_name}</TableCell>
                         <TableCell>{reservation.from_email}</TableCell>
@@ -371,6 +411,7 @@ export default function ReservationsPage() {
                 )}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
         {/* <Card className="col-span-3">
@@ -393,17 +434,18 @@ export default function ReservationsPage() {
       <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <DialogContent className="w-[400px] max-w-[90vw]" onInteractOutside={e => e.preventDefault()}>
           <DialogHeader className="text-center">
-            <DialogTitle>確認</DialogTitle>
+            <DialogTitle>作業完了</DialogTitle>
             <DialogDescription>
-              作業を完了しますか？
+              
             </DialogDescription>
           </DialogHeader>
+          <div className="text-center">作業を完了しますか？</div>
           <div className="flex justify-evenly gap-4 mt-6">
-            <Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>
-              キャンセル
-            </Button>
             <Button onClick={handleConfirmComplete}>
               確認
+            </Button>
+            <Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>
+              キャンセル
             </Button>
           </div>
         </DialogContent>
@@ -413,17 +455,18 @@ export default function ReservationsPage() {
       <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
         <DialogContent className="w-[400px] max-w-[90vw]" onInteractOutside={e => e.preventDefault()}>
           <DialogHeader className="text-center">
-            <DialogTitle>確認</DialogTitle>
+            <DialogTitle>予約キャンセル</DialogTitle>
             <DialogDescription>
-              予約をキャンセルしますか？
+              
             </DialogDescription>
           </DialogHeader>
+          <div className="text-center">予約をキャンセルしますか？</div>
           <div className="flex justify-evenly gap-4 mt-6">
-            <Button variant="outline" onClick={() => setCancelDialogOpen(false)}>
-              キャンセル
-            </Button>
             <Button onClick={handleConfirmCancel}>
               確認
+            </Button>
+            <Button variant="outline" onClick={() => setCancelDialogOpen(false)}>
+              キャンセル
             </Button>
           </div>
         </DialogContent>

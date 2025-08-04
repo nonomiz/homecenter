@@ -6,6 +6,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Calendar, Settings } from "lucide-react";
 import { Sidebar } from "@/components/store-sidebar";
+import { API_URL } from "@/lib/inc/constants";
 
 const sidebarNavItems = [
   {
@@ -64,7 +65,7 @@ export default function StoreLayout({
 
       // 점포 정보 가져오기
       try {
-        const response = await fetch(`http://192.168.0.116:3000/shop_detail`, {
+        const response = await fetch(`${API_URL}/shop_info`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -74,10 +75,10 @@ export default function StoreLayout({
         });
 
         if (response.ok) {
-          const data = await response.json();
-          setStoreData(data.data[0]);
+          const jsonData = await response.json();
+          setStoreData(jsonData.data);
 
-          console.log(data);
+          console.log(jsonData);
         } else {
           // 토큰이 유효하지 않으면 로그인 페이지로 리다이렉트
           sessionStorage.removeItem("storeToken");

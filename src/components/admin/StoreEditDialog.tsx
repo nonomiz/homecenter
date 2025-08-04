@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,10 @@ export function StoreEditDialog({ open, onOpenChange, store, onSave, onCancel, t
     description: "",
   });
 
+  const fetchStore = () => {
+
+  }
+
   useEffect(() => {
     if (store) setForm(store);
   }, [store]);
@@ -52,6 +56,8 @@ export function StoreEditDialog({ open, onOpenChange, store, onSave, onCancel, t
            
           </div>
         </DialogHeader>
+        <DialogDescription>
+        </DialogDescription>
         <form
           onSubmit={e => {
             e.preventDefault();
@@ -61,7 +67,7 @@ export function StoreEditDialog({ open, onOpenChange, store, onSave, onCancel, t
           <div className="flex flex-col gap-4 mb-2">
             <div className="flex items-center gap-4">
               <label className="w-32 text-right pr-2 text-gray-900 dark:text-gray-300">店舗ID</label>
-              <Input className="bg-white text-black text-center font-semibold flex-1 border border-gray-300 shadow-sm rounded-lg placeholder-gray-400 dark:bg-[#181818] dark:text-white dark:border-neutral-800 dark:placeholder-gray-500" value={form.id} onChange={e => handleChange("id", e.target.value)} readOnly />
+              <Input className="bg-white text-black text-center font-semibold flex-1 border border-gray-300 shadow-sm rounded-lg placeholder-gray-400 dark:bg-[#181818] dark:text-white dark:border-neutral-800 dark:placeholder-gray-500" value={form.id} onChange={e => handleChange("id", e.target.value)} readOnly maxLength={50}/>
             </div>
             <div className="flex items-center gap-4">
               <label className="w-32 text-right pr-2 text-gray-900 dark:text-gray-300">パスワード</label>
@@ -72,7 +78,7 @@ export function StoreEditDialog({ open, onOpenChange, store, onSave, onCancel, t
               <Input className="bg-white text-black text-center font-semibold flex-1 border border-gray-300 shadow-sm rounded-lg placeholder-gray-400 dark:bg-[#181818] dark:text-white dark:border-neutral-800 dark:placeholder-gray-500" value={form.name} onChange={e => handleChange("name", e.target.value)} />
             </div>
             <div className="flex items-center gap-4">
-              <label className="w-32 text-right pr-2 text-gray-900 dark:text-gray-300">EMail</label>
+              <label className="w-32 text-right pr-2 text-gray-900 dark:text-gray-300">メール</label>
               <Input className="bg-white text-black text-center font-semibold flex-1 border border-gray-300 shadow-sm rounded-lg placeholder-gray-400 dark:bg-[#181818] dark:text-white dark:border-neutral-800 dark:placeholder-gray-500" value={form.email} onChange={e => handleChange("email", e.target.value)} />
             </div>
             <div className="flex items-center gap-4">

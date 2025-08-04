@@ -5,13 +5,14 @@ import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { API_URL } from "@/lib/inc/constants";
 
 interface StoreDetail {
   shop_id: string;
   name: string;
   address: string;
   phone1: string;
-  desc?: string;
+  descriptions?: string;
 }
 
 export default function StoreDetailPage() {
@@ -23,16 +24,16 @@ export default function StoreDetailPage() {
   useEffect(() => {
     const fetchStore = async () => {
       setLoading(true);
-      const response = await fetch("http://192.168.0.116:3000/shop_detail", {
+      const response = await fetch(`${API_URL}/shop_info`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ shop_id: storeId }),
       });
       if (response.ok) {
-        const data = await response.json();
+        const jsonData = await response.json();
 
-        console.log(data.data[0]);
-        setStore(data.data[0]);
+        console.log(jsonData.data);
+        setStore(jsonData.data);
       }
       setLoading(false);
     };
@@ -63,7 +64,7 @@ export default function StoreDetailPage() {
             </div>
             <div className="text-lg font-medium mb-2">店舗説明</div>
             <div className="border p-4 min-h-[120px] mb-8">
-              <div className="text-base">{store.desc || ""}</div>
+              <div className="text-base">{store.descriptions || ""}</div>
             </div>
           </div>
           <div className="flex flex-col md:flex-row gap-4 justify-evenly mt-12">

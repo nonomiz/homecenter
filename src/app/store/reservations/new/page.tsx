@@ -15,6 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MessageDialog } from "@/components/ui/message-dialog"
+import { API_URL } from "@/lib/inc/constants"
 
 interface ReservationForm {
   date: Date | undefined
@@ -22,6 +23,7 @@ interface ReservationForm {
   name: string
   email: string
   phone: string
+  battery: string
 }
 
 interface ReservedTime {
@@ -37,6 +39,7 @@ export default function NewReservationPage() {
     name: "",
     email: "",
     phone: "",
+    battery: ""
   })
   const [reservedTimes, setReservedTimes] = useState<ReservedTime[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -55,7 +58,7 @@ export default function NewReservationPage() {
     setIsLoading(true)
     try {
       const formattedDate = format(date, "yyyy-MM-dd")
-      const response = await fetch(`http://192.168.0.116:3000/get_reservation_times`, {
+      const response = await fetch(`${API_URL}/get_reservation_times`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include", // 쿠키 포함 필수
@@ -131,12 +134,13 @@ export default function NewReservationPage() {
         res_time: form.time,
         from_name: form.name,
         from_email: form.email,
-        from_phone: form.phone
+        from_phone: form.phone,
+        battery: form.battery
       };
 
       console.log(postData);
 
-      const response = await fetch('http://192.168.0.116:3000/add_reservation', {
+      const response = await fetch(`${API_URL}/add_reservation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
@@ -289,6 +293,17 @@ export default function NewReservationPage() {
                   pattern="([0-9]{2}-[0-9]{4}-[0-9]{4}|[0-9]{3}-[0-9]{4}-[0-9]{4})"
                 />
               </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">バッテリ情報</label>
+                <Input
+                  type="text"
+                  value={form.battery}
+                  onChange={(e) => setForm({ ...form, battery: e.target.value })}
+                  placeholder="12V 30A"
+                  required
+                  minLength={2}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -297,7 +312,7 @@ export default function NewReservationPage() {
           <Link href="/store/reservations">
             <Button variant="outline">キャンセル</Button>
           </Link>
-          <Button type="submit">予約作成</Button>
+          <Button type="submit">予約確定</Button>
         </div>
       </form>
       <MessageDialog

@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,8 @@ export function StoreAddDialog({ open, onOpenChange, onSave, onCancel }: StoreAd
             <DialogTitle>店舗追加</DialogTitle>
           </div>
         </DialogHeader>
+        <DialogDescription>
+        </DialogDescription>
         <form
           onSubmit={e => {
             e.preventDefault();
@@ -65,7 +67,7 @@ export function StoreAddDialog({ open, onOpenChange, onSave, onCancel }: StoreAd
               <Input className="bg-white text-black text-center font-semibold flex-1 border border-gray-300 shadow-sm rounded-lg placeholder-gray-400 dark:bg-[#181818] dark:text-white dark:border-neutral-800 dark:placeholder-gray-500" value={form.name} onChange={e => handleChange("name", e.target.value)} />
             </div>
             <div className="flex items-center gap-4">
-              <label className="w-32 text-right pr-2 text-gray-900 dark:text-gray-300">EMail</label>
+              <label className="w-32 text-right pr-2 text-gray-900 dark:text-gray-300">メール</label>
               <Input className="bg-white text-black text-center font-semibold flex-1 border border-gray-300 shadow-sm rounded-lg placeholder-gray-400 dark:bg-[#181818] dark:text-white dark:border-neutral-800 dark:placeholder-gray-500" value={form.email} onChange={e => handleChange("email", e.target.value)} />
             </div>
             <div className="flex items-center gap-4">

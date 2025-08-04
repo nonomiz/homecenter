@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Search, MoreHorizontal } from "lucide-react"
+import { Plus, Search, MoreHorizontal, RefreshCcw } from "lucide-react"
 import Link from "next/link"
 import { StoreEditDialog, StoreEditData } from "@/components/admin/StoreEditDialog"
 import { StoreAddDialog, StoreAddData } from "@/components/admin/StoreAddDialog"
@@ -22,7 +22,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 
 export default function AdminStoresPage() {
   // 예시 데이터
-  const storeRows: StoreEditData[] = Array(7).fill(0).map((_, i) => ({
+  const storeRows: StoreEditData[] = Array(20).fill(0).map((_, i) => ({
     id: `Store${i+1}`,
     password: "********",
     name: `Store${i+1}`,
@@ -40,10 +40,20 @@ export default function AdminStoresPage() {
     { month: "2025-06", total: 100, completed: 70, pending: 10, cancelled: 20 },
     { month: "2025-05", total: 100, completed: 70, pending: 10, cancelled: 20 },
     { month: "2025-04", total: 100, completed: 70, pending: 10, cancelled: 20 },
+    { month: "2025-03", total: 100, completed: 70, pending: 10, cancelled: 20 },
+    { month: "2025-02", total: 100, completed: 70, pending: 10, cancelled: 20 },
+    { month: "2025-01", total: 100, completed: 70, pending: 10, cancelled: 20 },
+    { month: "2025-04", total: 100, completed: 70, pending: 10, cancelled: 20 },
+    { month: "2025-04", total: 100, completed: 70, pending: 10, cancelled: 20 },
+    { month: "2025-04", total: 100, completed: 70, pending: 10, cancelled: 20 },
+    { month: "2025-04", total: 100, completed: 70, pending: 10, cancelled: 20 },
   ]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<StoreEditData | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [phoneSearch, setPhoneSearch] = useState("");
+  const [emailSearch, setEmailSearch] = useState("");
 
   const handleEdit = (store: StoreEditData) => {
     setEditStore(store);
@@ -90,10 +100,17 @@ export default function AdminStoresPage() {
     setAddOpen(false);
   };
 
+  /**
+   * ショップリスト情報を取得する。
+   */
+  const fetchShopList = async () => {
+    //fetch()
+  }
+
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">店舗管理</h2>
+        <h2 className="text-3xl font-bold tracking-tight"></h2>
         <div className="flex items-center space-x-2">
           <Button onClick={handleAdd}>
             <Plus className="mr-2 h-4 w-4" />
@@ -154,46 +171,81 @@ export default function AdminStoresPage() {
             <div className="flex items-center space-x-2">
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="店舗名で検索..." className="pl-8" />
+                <Input
+                  placeholder="店舗名で検索"
+                  className="pl-8"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+              </div>
+              <div className="relative">
+                <Input
+                  placeholder="電話番号で検索"
+                  className="pl-8"
+                  value={phoneSearch}
+                  onChange={e => setPhoneSearch(e.target.value)}
+                />
+              </div>
+              <div className="relative">
+                <Input
+                  placeholder="メールで検索"
+                  className="pl-8"
+                  value={emailSearch}
+                  onChange={e => setEmailSearch(e.target.value)}
+                />
+              </div>
+              <div className="relative">
+                <Button onClick={handleAdd}>
+                  <RefreshCcw className="mr-2 h-4 w-4"/>
+                  更新
+                </Button>
               </div>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
+          {/* 헤더 테이블 (고정) */}
+          <div className="max-h-[500px] overflow-y-auto">
+          <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center">店舗名</TableHead>
-                <TableHead className="text-center">住所</TableHead>
-                <TableHead className="text-center">電話</TableHead>
-                <TableHead className="text-center">EMail</TableHead>
-                <TableHead className="text-center">予約件数</TableHead>
-                <TableHead className="text-center">完了件数</TableHead>
-                <TableHead className="text-center">予約中件数</TableHead>
-                <TableHead className="text-center">取消件数</TableHead>
+                <TableHead className="w-32">店舗名</TableHead>
+                <TableHead className="w-64">住所</TableHead>
+                <TableHead className="w-32">電話</TableHead>
+                <TableHead className="w-40">メール</TableHead>
+                <TableHead className="w-24 text-center">予約件数</TableHead>
+                <TableHead className="w-24 text-center">完了件数</TableHead>
+                <TableHead className="w-24 text-center">予約中件数</TableHead>
+                <TableHead className="w-24 text-center">取消件数</TableHead>
                 <TableHead className="text-center">操作</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {storeRows.map((row, i) => (
-                <TableRow key={i}>
-                  <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.address}</TableCell>
-                  <TableCell>{row.phone}</TableCell>
-                  <TableCell>{row.email}</TableCell>
-                  <TableCell className="text-center">100</TableCell>
-                  <TableCell className="text-center">70</TableCell>
-                  <TableCell className="text-center">10</TableCell>
-                  <TableCell className="text-center">20</TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(row)}>編集</Button>
-                    <Button variant="outline" size="sm" onClick={() => handleReport(row)}>レポート</Button>
-                    <Button variant="outline" size="sm" onClick={() => handleDelete(row)}>削除</Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {/* </Table> */}
+          {/* 바디 테이블 (스크롤) */}
+            {/* <Table className="w-full table-fixed"> */}
+              <TableBody>
+                {storeRows
+                  .filter(row => row.name.includes(search) && row.phone.includes(phoneSearch) && row.email.includes(emailSearch))
+                  .map((row, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="w-32">{row.name}</TableCell>
+                    <TableCell className="w-64">{row.address}</TableCell>
+                    <TableCell className="w-32">{row.phone}</TableCell>
+                    <TableCell className="w-40">{row.email}</TableCell>
+                    <TableCell className="w-24 text-center">100</TableCell>
+                    <TableCell className="w-24 text-center">70</TableCell>
+                    <TableCell className="w-24 text-center">10</TableCell>
+                    <TableCell className="w-24 text-center">20</TableCell>
+                    <TableCell className="text-right space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(row)}>編集</Button>
+                      <Button variant="outline" size="sm" onClick={() => handleReport(row)}>レポート</Button>
+                      <Button variant="outline" size="sm" onClick={() => handleDelete(row)}>削除</Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
       <StoreEditDialog open={editOpen} onOpenChange={setEditOpen} store={editStore} onSave={handleSave} onCancel={handleCancel} title="店舗編集" />
@@ -203,9 +255,11 @@ export default function AdminStoresPage() {
           <DialogHeader className="text-center">
             <DialogTitle>削除しますか？</DialogTitle>
           </DialogHeader>
+          <DialogDescription>
+          </DialogDescription>
           <div className="flex justify-evenly gap-4 mt-6">
-            <Button variant="outline" onClick={handleDeleteCancel}>キャンセル</Button>
             <Button onClick={handleDeleteConfirm}>確認</Button>
+            <Button variant="outline" onClick={handleDeleteCancel}>キャンセル</Button>
           </div>
         </DialogContent>
       </Dialog>
