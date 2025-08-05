@@ -19,6 +19,8 @@ import { StoreAddDialog, StoreAddData } from "@/components/admin/StoreAddDialog"
 import { useState } from "react"
 import { StoreReportDialog } from "@/components/admin/StoreReportDialog"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { API_ADMIN_URL } from "@/lib/inc/constants"
+import { MessageDialog } from "@/components/ui/message-dialog"
 
 export default function AdminStoresPage() {
   // 예시 데이터
@@ -54,6 +56,15 @@ export default function AdminStoresPage() {
   const [search, setSearch] = useState("");
   const [phoneSearch, setPhoneSearch] = useState("");
   const [emailSearch, setEmailSearch] = useState("");
+  const [messageDialog, setMessageDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+  })
 
   const handleEdit = (store: StoreEditData) => {
     setEditStore(store);
@@ -92,9 +103,36 @@ export default function AdminStoresPage() {
   const handleAdd = () => {
     setAddOpen(true);
   };
-  const handleAddSave = (data: StoreAddData) => {
+  const handleAddSave = async(data: StoreAddData) => {
     setAddOpen(false);
     // 신규 등록 로직 추가 가능
+
+    const response = await fetch(`${API_ADMIN_URL}/shop_add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      const jsonBody = await response.json();
+      console.log(jsonBody);
+      setMessageDialog({
+        isOpen: true,
+        title: '店舗追加成功',
+        message: "店舗追加が完了しました。",
+      });
+    }
+    else {
+      const jsonBody = await response.json();
+      console.log(jsonBody);
+      setMessageDialog({
+        isOpen: true,
+        title: '店舗追加失敗',
+        message: jsonBody.message,
+      });
+    }
   };
   const handleAddCancel = () => {
     setAddOpen(false);
@@ -264,6 +302,19 @@ export default function AdminStoresPage() {
         </DialogContent>
       </Dialog>
       <StoreAddDialog open={addOpen} onOpenChange={setAddOpen} onSave={handleAddSave} onCancel={handleAddCancel} />
+      {/* MessageDialog */}
+      <MessageDialog
+        open={messageDialog.isOpen}
+        onOpenChange={(open) => {
+          setMessageDialog({ ...messageDialog, isOpen: open })
+        }}
+        title={messageDialog.title}
+        message={messageDialog.message}
+        onConfirm={() => {
+          setMessageDialog({ ...messageDialog, isOpen: false })
+        }}
+        confirmText="確認"
+      />
     </div>
   )
 } 
