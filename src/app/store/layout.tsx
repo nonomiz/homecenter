@@ -44,6 +44,9 @@ export default function StoreLayout({
 
   useEffect(() => {
     const checkAuth = async () => {
+      // 클라이언트 사이드에서만 sessionStorage 접근
+      if (typeof window === 'undefined') return;
+      
       const token = sessionStorage.getItem("storeToken");
       const storeId = sessionStorage.getItem("storeId");
 
@@ -81,8 +84,10 @@ export default function StoreLayout({
           console.log(jsonData);
         } else {
           // 토큰이 유효하지 않으면 로그인 페이지로 리다이렉트
-          sessionStorage.removeItem("storeToken");
-          sessionStorage.removeItem("storeId");
+          if (typeof window !== 'undefined') {
+            sessionStorage.removeItem("storeToken");
+            sessionStorage.removeItem("storeId");
+          }
           router.push("/store/login");
         }
       } catch (error) {

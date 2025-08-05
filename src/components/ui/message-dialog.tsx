@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import React from "react";
+import { DialogDescription } from "@radix-ui/react-dialog";
 
 interface MessageDialogProps {
   open: boolean;
@@ -31,6 +32,8 @@ export function MessageDialog({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
+        <DialogDescription>
+        </DialogDescription>
         <div className="py-4 text-center text-base whitespace-pre-line">{message}</div>
         <DialogFooter>
           {showCancel && (

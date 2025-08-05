@@ -37,8 +37,10 @@ export default function StoreLoginPage() {
       const data = await response.json()
 
       if (response.ok) {
-        sessionStorage.setItem("storeToken", data.data.token)
-        sessionStorage.setItem("storeId", username/*data.storeId*/)
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem("storeToken", data.data.token)
+          sessionStorage.setItem("storeId", username/*data.storeId*/)
+        }
         router.push("/store/reservations")
       } else {
         setError(data.message || "ログインに失敗しました")

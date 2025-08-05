@@ -15,6 +15,7 @@ import Link from "next/link"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { API_URL } from "@/lib/inc/constants"
+import { MessageDialog } from "@/components/ui/message-dialog"
 
 interface ReservationHistoryItem {
   res_no?: any;
@@ -37,6 +38,19 @@ export default function ReservationsPage() {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [selectedResNo, setSelectedResNo] = useState<any>(null);
   const [dialogType, setDialogType] = useState<'complete' | 'cancel'>('complete');
+  const [cancelFailDialogOpen, setCancelFailDialogOpen] = useState(false);
+  const [searchConditionWarningDialog, setSearchConditionWarningDialog] = useState(false);
+  const [storeId, setStoreId] = useState<string | null>(null);
+
+  const [messageDialog, setMessageDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+  })
 
   const formatDate = (date: Date) => {
     return format(date, "yyyy-MM-dd", { locale: ja })
@@ -56,21 +70,38 @@ export default function ReservationsPage() {
     }
   }
 
+  useEffect(() => {
+    // 클라이언트 사이드에서만 sessionStorage 접근
+    if (typeof window !== 'undefined') {
+      const id = sessionStorage.getItem('storeId');
+      setStoreId(id);
+    }
+  }, []);
+
+  // useEffect(() => {
+  //   if (storeId) {
+  //     refreshReservationList();
+  //   }
+  // }, [storeId]);
+
   // 예약 목록 새로고침 함수
   const refreshReservationList = async () => {
     const formattedDate = format(new Date(), 'yyyy-MM-dd')
-    const storeId = sessionStorage.getItem('storeId');
-    const response = await fetch(`${API_URL}/mypage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: "include",
-      body: JSON.stringify({
-        shop_id: storeId,
-        //res_date: formattedDate
-      })
-    });
-    const jsonBody = await response.json();
-    setReservations(jsonBody.data);
+      if (!storeId) return;
+      const response = await fetch(`${API_URL}/search_reservation`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: "include",
+        body: JSON.stringify({
+          shop_id: storeId,
+          res_date: formattedDate,
+          phone: form.phone,
+          name: form.name,
+          email: form.email
+        })
+      });
+      const jsonBody = await response.json();
+      setReservations(jsonBody.data);
   };
 
   // 예약 완료 확인 다이얼로그 열기
@@ -102,6 +133,13 @@ export default function ReservationsPage() {
       if (response.ok) {
         // 예약 목록 새로고침
         await refreshReservationList();
+      }
+      else {
+        setMessageDialog({
+          isOpen: true,
+          title: '予約完了失敗',
+          message: '予約完了ができませんでした。',
+        });
       }
     } catch (error) {
       console.error('예약 완료 처리 실패:', error);
@@ -142,14 +180,17 @@ export default function ReservationsPage() {
         // 예약 목록 새로고침
         await refreshReservationList();
       }
+      else {
+        setMessageDialog({
+          isOpen: true,
+          title: '予約キャンセル失敗',
+          message: '予約キャンセルができませんでした。',
+        });
+      }
     } catch (error) {
-      console.error('예약 취소 처리 실패:', error);
+      console.error('予約キャンセル失敗:', error);
     }
   };
-
-  useEffect(() => {
-    // refreshReservationList();
-  }, [])
 
   // 오늘 예약 수 계산
   const todayReservationsCount = reservations ? reservations.length : 0;
@@ -162,28 +203,20 @@ export default function ReservationsPage() {
     ? ((cancelledReservations.length / reservations.length) * 100).toFixed(1)
     : '0.0';
 
-  // 실제 검색 로직은 추후 구현
+  // 予約検索
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formattedDate = format(new Date(), 'yyyy-MM-dd')
-    const storeId = sessionStorage.getItem('storeId');
-    const response = await fetch(`${API_URL}/search_reservation`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: "include",
-      body: JSON.stringify({
-        shop_id: storeId,
-        res_date: formattedDate,
-        phone: form.phone,
-        name: form.name,
-        email: form.email
-      })
-    });
-    const jsonBody = await response.json();
-    console.log(jsonBody);
-    // e.preventDefault()
-    setReservations(jsonBody.data);
 
+    if (form.name === "" && form.email === "" && form.phone === "") {
+      setMessageDialog({
+        isOpen: true,
+        title: '予約検索条件警告',
+        message: '予約者名、メール、電話番号のいずれかを入力してください。',
+      });
+    }
+    else {
+      refreshReservationList();
+    }
   }
 
   return (
@@ -196,7 +229,7 @@ export default function ReservationsPage() {
           <CardContent>
             <div className="flex flex-col gap-4 mb-4">
               <div className="flex items-center gap-2 mb-4">
-                <form onSubmit={handleSearch} className="flex flex-wrap gap-4 items-end mb-2">
+                <form onSubmit={(e) =>handleSearch(e)} className="flex flex-wrap gap-4 items-end mb-2">
                   <div className="flex items-center gap-2">
                     <label className="w-24 text-right" htmlFor="search-name">予約者名</label>
                     <Input id="search-name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
@@ -353,6 +386,20 @@ export default function ReservationsPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <MessageDialog
+        open={messageDialog.isOpen}
+        onOpenChange={(open) => {
+          setMessageDialog({ ...messageDialog, isOpen: open })
+        }}
+        title={messageDialog.title}
+        message={messageDialog.message}
+        onConfirm={() => {
+          setMessageDialog({ ...messageDialog, isOpen: false })
+        }}
+        confirmText="確認"
+      />
+
     </div>
   )
 } 

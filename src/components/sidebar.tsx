@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { LayoutDashboard, Store, Calendar, Users, Settings, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { API_ADMIN_URL } from "@/lib/inc/constants"
+import { useEffect, useState } from "react"
 
 const sidebarNavItems = [
   // {
@@ -38,9 +39,18 @@ const sidebarNavItems = [
 export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const [adminId, setAdminId] = useState<string | null>(null)
+
+  useEffect(() => {
+    // 클라이언트 사이드에서만 sessionStorage 접근
+    if (typeof window !== 'undefined') {
+      setAdminId(sessionStorage.getItem("adminId"))
+    }
+  }, [])
 
   const handleLogout = async () => {
-    let adminId = sessionStorage.getItem("adminId");
+    if (!adminId) return
+    
     const res = await fetch(`${API_ADMIN_URL}/gclogout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -49,9 +59,11 @@ export function Sidebar() {
     });
     console.log(res);
 
-    sessionStorage.removeItem("adminLoggedIn")
-    sessionStorage.removeItem("adminToken")
-    sessionStorage.removeItem("adminId")
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem("adminLoggedIn")
+      sessionStorage.removeItem("adminToken")
+      sessionStorage.removeItem("adminId")
+    }
     router.push("/admin/login")
   }
 

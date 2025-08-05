@@ -81,9 +81,12 @@ export default function NewReservationPage() {
   }
 
   useEffect(() => {
-    const storeId = sessionStorage.getItem('storeId')
-    console.log(storeId);
-    setStoreId(storeId);
+    // 클라이언트 사이드에서만 sessionStorage 접근
+    if (typeof window !== 'undefined') {
+      const id = sessionStorage.getItem('storeId')
+      console.log(id);
+      setStoreId(id);
+    }
   }, [])
 
   // 날짜 선택 시 예약된 시간 가져오기

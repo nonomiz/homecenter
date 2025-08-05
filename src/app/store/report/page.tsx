@@ -1,21 +1,37 @@
 "use client"
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
 import { API_URL } from "@/lib/inc/constants";
 import { useEffect, useState } from "react";
 
 export default function StoreReportPage() {
-  const storeId = sessionStorage.getItem("storeId");
-  console.log("Report => ", storeId);
+  const [storeId, setStoreId] = useState<string | null>(null);
   const storeName = "店舗本店";
 
   const [resMonths, setResMonths] = useState([]) as any;
   const [shopReportsDatas, setShopReportsDatas] = useState({}) as any;
 
+  useEffect(() => {
+    // 클라이언트 사이드에서만 sessionStorage 접근
+    if (typeof window !== 'undefined') {
+      const id = sessionStorage.getItem("storeId");
+      console.log("Report => ", id);
+      setStoreId(id);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (storeId) {
+      fetchReports();
+    }
+  }, [storeId]);
+
   const fetchReports = async () => {
+    if (!storeId) return;
+    
     try {
       const response = await fetch(`${API_URL}/shop_reports`, {
         method: 'POST',
@@ -58,10 +74,6 @@ export default function StoreReportPage() {
       
     }
   };
-
-  useEffect(() => {
-    fetchReports();
-  }, [])
 
   const showReportDatas = () => {
     if (resMonths.length < 1) {

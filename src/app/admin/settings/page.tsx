@@ -8,24 +8,40 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MapPin, Clock, Bell, Shield, Image as ImageIcon } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import { API_ADMIN_URL, API_URL } from "@/lib/inc/constants"
 
+interface AdminInfo {
+  name: string;
+  email: string;
+  address: string;
+  phone1: string;
+  password: string;
+  descriptions: string;
+}
+
 export default function SettingsPage() {
-  const [adminInfo, setAdminInfo] = useState({
-    shop_id: "",
-    email: "",
+  const [adminInfo, setAdminInfo] = useState<AdminInfo>({
     name: "",
+    email: "",
     address: "",
     phone1: "",
     password: "",
     descriptions: ""
   });
+  const [adminId, setAdminId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // 클라이언트 사이드에서만 sessionStorage 접근
+    if (typeof window !== 'undefined') {
+      const id = sessionStorage.getItem("adminId");
+      setAdminId(id);
+    }
+  }, []);
 
   useEffect(() => {
     // TODO: 管理者情報を取得する。
     const fetchStoreInfo = async () => {      
-      const adminId = sessionStorage.getItem("adminId");
       if (!adminId) return;
       const response = await fetch(`${API_ADMIN_URL}/admin_detail`, {
         method: "POST",
@@ -38,14 +54,15 @@ export default function SettingsPage() {
         setAdminInfo(jsonData.data || {});
       }
     };
-    fetchStoreInfo();
-  }, []);
+    if (adminId) {
+      fetchStoreInfo();
+    }
+  }, [adminId]);
 
   const handleSave = async () => {
     console.log("Save...")
 
-    const storeId = sessionStorage.getItem("adminId");
-    if (!storeId) {
+    if (!adminId) {
       alert("Store ID is missing.");
       return;
     }
@@ -54,7 +71,7 @@ export default function SettingsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          shop_id: storeId,
+          shop_id: adminId,
           name: adminInfo.name,
           password: adminInfo.password,
           address: adminInfo.address,
@@ -90,7 +107,7 @@ export default function SettingsPage() {
             <Label className="w-[140px] text-right" htmlFor="storeId">管理者ID</Label>
             <Input
               id="storeId"
-              value={sessionStorage.getItem("adminId") || ""}
+              value={adminId || ""}
               readOnly
             />
           </div>

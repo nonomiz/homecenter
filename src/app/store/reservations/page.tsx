@@ -27,17 +27,33 @@ interface ReservationHistoryItem {
 }
 
 export default function ReservationsPage() {
-  const [date, setDate] = useState<Date | undefined>(new Date())
-  const [calendarOpen, setCalendarOpen] = useState(false)
   const [reservations, setReservations] = useState<ReservationHistoryItem[]>([]);
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [nameFilter, setNameFilter] = useState<string>("");
-  const [emailFilter, setEmailFilter] = useState<string>("");
-  const [phoneFilter, setPhoneFilter] = useState<string>("");
+  const [date, setDate] = useState<Date | undefined>(new Date());
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [selectedResNo, setSelectedResNo] = useState<any>(null);
   const [dialogType, setDialogType] = useState<'complete' | 'cancel'>('complete');
+  const [storeId, setStoreId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // 클라이언트 사이드에서만 sessionStorage 접근
+    if (typeof window !== 'undefined') {
+      const id = sessionStorage.getItem('storeId');
+      setStoreId(id);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (storeId) {
+      refreshReservationList();
+    }
+  }, [storeId, date]);
+
+  const [calendarOpen, setCalendarOpen] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [nameFilter, setNameFilter] = useState<string>("");
+  const [emailFilter, setEmailFilter] = useState<string>("");
+  const [phoneFilter, setPhoneFilter] = useState<string>("");
 
   const formatDate = (date: Date) => {
     return format(date, "yyyy-MM-dd", { locale: ja })
@@ -65,7 +81,8 @@ export default function ReservationsPage() {
       formattedDate = format(date, 'yyyy-MM-dd')
     }
     
-    const storeId = sessionStorage.getItem('storeId');
+    if (!storeId) return;
+    
     let sendData: any = {
       shop_id: storeId,
     };
@@ -156,10 +173,6 @@ export default function ReservationsPage() {
       console.error('예약 취소 처리 실패:', error);
     }
   };
-
-  useEffect(() => {
-    refreshReservationList();
-  }, [date])
 
   // 오늘 예약 수 계산
   const todayReservationsCount = reservations ? reservations.length : 0;

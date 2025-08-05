@@ -8,23 +8,39 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MapPin, Clock, Bell, Shield, Image as ImageIcon } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import { API_URL } from "@/lib/inc/constants"
 
+interface StoreInfo {
+  name: string;
+  email: string;
+  address: string;
+  phone1: string;
+  password: string;
+  descriptions: string;
+}
+
 export default function SettingsPage() {
-  const [storeInfo, setStoreInfo] = useState({
-    shop_id: "",
-    email: "",
+  const [storeInfo, setStoreInfo] = useState<StoreInfo>({
     name: "",
+    email: "",
     address: "",
     phone1: "",
     password: "",
     descriptions: ""
   });
+  const [storeId, setStoreId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // 클라이언트 사이드에서만 sessionStorage 접근
+    if (typeof window !== 'undefined') {
+      const id = sessionStorage.getItem("storeId");
+      setStoreId(id);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchStoreInfo = async () => {      
-      const storeId = sessionStorage.getItem("storeId");
       if (!storeId) return;
       const response = await fetch(`${API_URL}/shop_detail`, {
         method: "POST",
@@ -37,13 +53,14 @@ export default function SettingsPage() {
         setStoreInfo(jsonData.data);
       }
     };
-    fetchStoreInfo();
-  }, []);
+    if (storeId) {
+      fetchStoreInfo();
+    }
+  }, [storeId]);
 
   const handleSave = async () => {
     console.log("Save...", storeInfo)
 
-    const storeId = sessionStorage.getItem("storeId");
     if (!storeId) {
       alert("Store ID is missing.");
       return;
@@ -99,7 +116,7 @@ export default function SettingsPage() {
                 <Label htmlFor="storeId">店舗ID</Label>
                 <Input
                   id="storeId"
-                  value={sessionStorage.getItem("storeId") || ""}
+                  value={storeId || ""}
                   readOnly
                 />
               </div>

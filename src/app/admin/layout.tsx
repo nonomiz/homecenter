@@ -13,6 +13,9 @@ export default function AdminLayout({
   const pathname = usePathname();
 
   useEffect(() => {
+    // 클라이언트 사이드에서만 sessionStorage 접근
+    if (typeof window === 'undefined') return;
+    
     // 로그인 페이지는 체크하지 않음
     if (pathname === "/admin/login") return;
 

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { LayoutDashboard, Calendar, Settings, LogOut, BarChart2, Search as SearchIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { API_URL } from "@/lib/inc/constants"
+import { useEffect, useState } from "react"
 
 interface StoreData {
   id: string
@@ -50,11 +51,20 @@ const sidebarNavItems = [
 export function Sidebar({ storeData }: StoreSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const [storeId, setStoreId] = useState<string | null>(null)
 
   console.log("storeData", storeData)
 
+  useEffect(() => {
+    // 클라이언트 사이드에서만 sessionStorage 접근
+    if (typeof window !== 'undefined') {
+      setStoreId(sessionStorage.getItem("storeId"))
+    }
+  }, [])
+
   const handleLogout = async () => {
-    let storeId = sessionStorage.getItem("storeId");
+    if (!storeId) return
+    
     const res = await fetch(`${API_URL}/logout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -63,8 +73,10 @@ export function Sidebar({ storeData }: StoreSidebarProps) {
     });
     console.log(res);
 
-    sessionStorage.removeItem("storeToken")
-    sessionStorage.removeItem("storeId")
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem("storeToken")
+      sessionStorage.removeItem("storeId")
+    }
     router.push("/store/login")
   }
 

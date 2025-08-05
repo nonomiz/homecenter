@@ -33,9 +33,11 @@ export default function AdminLoginPage() {
 
     if (res.ok) {
       // 로그인 성공 시 세션 저장
-      sessionStorage.setItem("adminLoggedIn", "true")
-      sessionStorage.setItem("adminToken", jsonBody.data.token)
-      sessionStorage.setItem("adminId", id)
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem("adminLoggedIn", "true")
+        sessionStorage.setItem("adminToken", jsonBody.data.token)
+        sessionStorage.setItem("adminId", id)
+      }
       router.push("/admin/stores")
     } else {
       setError("IDまたはパスワードが正しくありません。")
