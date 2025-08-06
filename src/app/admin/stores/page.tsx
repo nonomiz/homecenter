@@ -16,28 +16,20 @@ import { Plus, Search, MoreHorizontal, RefreshCcw } from "lucide-react"
 import Link from "next/link"
 import { StoreEditDialog, StoreEditData } from "@/components/admin/StoreEditDialog"
 import { StoreAddDialog, StoreAddData } from "@/components/admin/StoreAddDialog"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { StoreReportDialog } from "@/components/admin/StoreReportDialog"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { API_ADMIN_URL } from "@/lib/inc/constants"
 import { MessageDialog } from "@/components/ui/message-dialog"
 
 export default function AdminStoresPage() {
-  // 예시 데이터
-  const storeRows: StoreEditData[] = Array(20).fill(0).map((_, i) => ({
-    id: `Store${i+1}`,
-    password: "********",
-    name: `Store${i+1}`,
-    email: `store${i+1}@exam.com`,
-    address: `東京都足立区西新井${i+1}`,
-    phone: "000-0000-0000",
-    description: "",
-  }));
+  const [stores, setStores] = useState([]);
 
   const [editOpen, setEditOpen] = useState(false);
   const [editStore, setEditStore] = useState<StoreEditData | null>(null);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportStoreName, setReportStoreName] = useState("");
+  const [reportStoreId, setReportStoreId] = useState("");
   const [reportData, setReportData] = useState([
     { month: "2025-06", total: 100, completed: 70, pending: 10, cancelled: 20 },
     { month: "2025-05", total: 100, completed: 70, pending: 10, cancelled: 20 },
@@ -70,19 +62,100 @@ export default function AdminStoresPage() {
     setEditStore(store);
     setEditOpen(true);
   };
-  const handleSave = (data: StoreEditData) => {
+  const handleSave = async (data: StoreEditData) => {
     setEditOpen(false);
     // 저장 로직 추가 가능
+
+    const response = await fetch(`${API_ADMIN_URL}/shop_edit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        shop_id: data.shop_id,
+        name: data.name,
+        password: data.password,
+        address: data.address,
+        phone: data.phone1,
+        email: data.email,
+        desc: data.descriptions
+      })
+    });
+
+    if (response.ok) {
+      setMessageDialog({
+        isOpen: true,
+        title: "店舗編集",
+        message: "保存しました。"
+      });
+    }
+    else {
+      setMessageDialog({
+        isOpen: true,
+        title: "店舗編集",
+        message: "保存できませんでした。"
+      });
+    }
   };
   const handleCancel = () => {
     setEditOpen(false);
   };
-  const handleReport = (store: StoreEditData) => {
+  
+  const handleReport = async (store: StoreEditData) => {
+    // store
+    await handleReportRefresh(store.shop_id);
+
     setReportStoreName(store.name);
+    setReportStoreId(store.shop_id);
     setReportOpen(true);
   };
-  const handleReportRefresh = () => {
-    // 갱신 로직 추가 가능
+  const handleReportRefresh = async (storeId: string) => {
+    const response = await fetch(`${API_ADMIN_URL}/shop_reports`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: "include",
+      body: JSON.stringify({
+        shop_id: storeId
+      })
+    });
+
+    if (response.ok) {
+      const jsonData = await response.json();
+      console.log(jsonData);
+
+      let reportDatas: any = {};
+      let resDatas: any[] = jsonData.data;
+      resDatas.map((data: any) => {
+        if (!reportDatas[data.res_month]) {
+          reportDatas[data.res_month] = {
+            '0': 0,
+            '1': 0,
+            '9': 0
+          };
+        }
+
+        reportDatas[data.res_month][data.reservation_status] = Number(data.count || 0);
+      });
+
+      console.log("reportDatas", reportDatas);
+      // setShopReportsDatas(reportDatas);
+
+      let objKeys = Object.keys(reportDatas);
+      console.log("objKeys", objKeys);
+      // setResMonths(objKeys);
+      
+      let storeReportData: any[] = [];
+      objKeys.forEach((month) => {
+        let srdData: any = {};
+        srdData["month"] = month;
+        let total = 0;
+        srdData["completed"] = Number(reportDatas[month]["9"] || "0");
+        srdData["pending"] = Number(reportDatas[month]["0"] || "0");
+        srdData["cancelled"] = Number(reportDatas[month]["1"] || "0");
+        srdData["total"] = srdData["completed"] + srdData["pending"] + srdData["cancelled"];
+        storeReportData.push(srdData);
+      });
+
+      setReportData(storeReportData);
+    }
   };
   const handleReportClose = () => {
     setReportOpen(false);
@@ -142,8 +215,21 @@ export default function AdminStoresPage() {
    * ショップリスト情報を取得する。
    */
   const fetchShopList = async () => {
-    //fetch()
+    const response = await fetch(`${API_ADMIN_URL}/admin_shop_list`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const jsonBody = await response.json();
+    console.log(jsonBody);
+
+    setStores(jsonBody.data);
   }
+
+  useEffect(() => {
+    fetchShopList();
+  }, []);
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -233,7 +319,7 @@ export default function AdminStoresPage() {
                 />
               </div>
               <div className="relative">
-                <Button onClick={handleAdd}>
+                <Button onClick={fetchShopList}>
                   <RefreshCcw className="mr-2 h-4 w-4"/>
                   更新
                 </Button>
@@ -262,18 +348,18 @@ export default function AdminStoresPage() {
           {/* 바디 테이블 (스크롤) */}
             {/* <Table className="w-full table-fixed"> */}
               <TableBody>
-                {storeRows
-                  .filter(row => row.name.includes(search) && row.phone.includes(phoneSearch) && row.email.includes(emailSearch))
-                  .map((row, i) => (
+                {stores
+                  .filter((row: any) => row.name.includes(search) && row.phone1.includes(phoneSearch) && row.email.includes(emailSearch))
+                  .map((row: any, i) => (
                   <TableRow key={i}>
                     <TableCell className="w-32">{row.name}</TableCell>
                     <TableCell className="w-64">{row.address}</TableCell>
-                    <TableCell className="w-32">{row.phone}</TableCell>
+                    <TableCell className="w-32">{row.phone1}</TableCell>
                     <TableCell className="w-40">{row.email}</TableCell>
-                    <TableCell className="w-24 text-center">100</TableCell>
-                    <TableCell className="w-24 text-center">70</TableCell>
-                    <TableCell className="w-24 text-center">10</TableCell>
-                    <TableCell className="w-24 text-center">20</TableCell>
+                    <TableCell className="w-24 text-center">{row.res_total}</TableCell>
+                    <TableCell className="w-24 text-center">{row.res_completed}</TableCell>
+                    <TableCell className="w-24 text-center">{row.res_ing}</TableCell>
+                    <TableCell className="w-24 text-center">{row.res_canceled}</TableCell>
                     <TableCell className="text-right space-x-2">
                       <Button variant="outline" size="sm" onClick={() => handleEdit(row)}>編集</Button>
                       <Button variant="outline" size="sm" onClick={() => handleReport(row)}>レポート</Button>
@@ -287,7 +373,7 @@ export default function AdminStoresPage() {
         </CardContent>
       </Card>
       <StoreEditDialog open={editOpen} onOpenChange={setEditOpen} store={editStore} onSave={handleSave} onCancel={handleCancel} title="店舗編集" />
-      <StoreReportDialog open={reportOpen} onOpenChange={setReportOpen} storeName={reportStoreName} reportData={reportData} onRefresh={handleReportRefresh} onClose={handleReportClose} />
+      <StoreReportDialog open={reportOpen} onOpenChange={setReportOpen} storeName={reportStoreName} storeId={reportStoreId} reportData={reportData} onRefresh={handleReportRefresh} onClose={handleReportClose} />
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="w-[350px] max-w-[90vw]" onInteractOutside={e => e.preventDefault()}>
           <DialogHeader className="text-center">

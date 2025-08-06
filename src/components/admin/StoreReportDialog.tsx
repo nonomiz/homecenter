@@ -16,12 +16,13 @@ interface StoreReportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   storeName: string;
+  storeId: string;
   reportData: ReportRow[];
-  onRefresh: () => void;
+  onRefresh: (storeId: string) => void;
   onClose: () => void;
 }
 
-export function StoreReportDialog({ open, onOpenChange, storeName, reportData, onRefresh, onClose }: StoreReportDialogProps) {
+export function StoreReportDialog({ open, onOpenChange, storeName, storeId, reportData, onRefresh, onClose }: StoreReportDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -44,7 +45,7 @@ export function StoreReportDialog({ open, onOpenChange, storeName, reportData, o
               </tbody>
             </table>
           </div>
-          <Button className="w-24" variant="secondary" onClick={onRefresh}>更新</Button>
+          <Button className="w-24" variant="secondary" onClick={() => onRefresh(storeId)}>更新</Button>
         </div>
         <div className="overflow-x-auto min-w-[900px]">
           <div className="max-h-[350px] overflow-y-auto">
@@ -59,7 +60,11 @@ export function StoreReportDialog({ open, onOpenChange, storeName, reportData, o
                 </tr>
               </thead>
               <tbody>
-                {reportData.map((row, i) => (
+                {
+                  reportData.length < 1 ?
+                    <tr><td className="px-6 py-3 text-center bg-white text-gray-900 border-t border-gray-200 whitespace-nowrap dark:bg-[#181818] dark:text-white dark:border-neutral-800" colSpan={5}>データがありません。</td></tr>
+                    :
+                reportData.map((row, i) => (
                   <tr key={i}>
                     <td className="px-6 py-3 text-center bg-white text-gray-900 border-t border-gray-200 whitespace-nowrap dark:bg-[#181818] dark:text-white dark:border-neutral-800">{row.month}</td>
                     <td className="px-6 py-3 text-center bg-white text-gray-900 border-t border-gray-200 whitespace-nowrap dark:bg-[#181818] dark:text-white dark:border-neutral-800">{row.total}</td>

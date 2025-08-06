@@ -4,15 +4,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { API_ADMIN_URL } from "@/lib/inc/constants";
 
 export interface StoreEditData {
-  id: string;
-  password: string;
+  shop_id: string;
   name: string;
   email: string;
   address: string;
-  phone: string;
-  description: string;
+  phone1: string;
+  password: string;
+  descriptions: string;
 }
 
 interface StoreEditDialogProps {
@@ -24,23 +25,57 @@ interface StoreEditDialogProps {
   title?: string;
 }
 
+interface StoreInfo {
+  shop_id: string;
+  name: string;
+  email: string;
+  address: string;
+  phone1: string;
+  password: string;
+  descriptions: string;
+}
+
 export function StoreEditDialog({ open, onOpenChange, store, onSave, onCancel, title }: StoreEditDialogProps) {
-  const [form, setForm] = useState<StoreEditData>({
-    id: "",
+  const [form, setForm] = useState<StoreInfo>({
+    shop_id: "",
     password: "",
     name: "",
     email: "",
     address: "",
-    phone: "",
-    description: "",
+    phone1: "",
+    descriptions: "",
   });
 
-  const fetchStore = () => {
+  const [storeInfo, setStoreInfo] = useState<StoreInfo>({
+    shop_id: "",
+    name: "",
+    email: "",
+    address: "",
+    phone1: "",
+    password: "",
+    descriptions: ""
+  });
 
+  const fetchStore = async () => {
+    if (store) {
+      const response = await fetch(`${API_ADMIN_URL}/shop_detail`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shop_id: store.shop_id })
+      });
+      if (response.ok) {
+        const jsonData = await response.json();
+        console.log(jsonData);
+        jsonData.data.descriptions = jsonData.data.descriptions || "";
+        setStoreInfo(jsonData.data);
+        setForm(jsonData.data);
+      }
+    }
   }
 
   useEffect(() => {
-    if (store) setForm(store);
+    // if (store) setForm(store);
+    fetchStore();
   }, [store]);
 
   const handleChange = (field: keyof StoreEditData, value: string) => {
@@ -67,7 +102,7 @@ export function StoreEditDialog({ open, onOpenChange, store, onSave, onCancel, t
           <div className="flex flex-col gap-4 mb-2">
             <div className="flex items-center gap-4">
               <label className="w-32 text-right pr-2 text-gray-900 dark:text-gray-300">店舗ID</label>
-              <Input className="bg-white text-black text-center font-semibold flex-1 border border-gray-300 shadow-sm rounded-lg placeholder-gray-400 dark:bg-[#181818] dark:text-white dark:border-neutral-800 dark:placeholder-gray-500" value={form.id} onChange={e => handleChange("id", e.target.value)} readOnly maxLength={50}/>
+              <Input className="bg-white text-black text-center font-semibold flex-1 border border-gray-300 shadow-sm rounded-lg placeholder-gray-400 dark:bg-[#181818] dark:text-white dark:border-neutral-800 dark:placeholder-gray-500" value={form.shop_id} onChange={e => handleChange("shop_id", e.target.value)} readOnly maxLength={50}/>
             </div>
             <div className="flex items-center gap-4">
               <label className="w-32 text-right pr-2 text-gray-900 dark:text-gray-300">パスワード</label>
@@ -87,11 +122,11 @@ export function StoreEditDialog({ open, onOpenChange, store, onSave, onCancel, t
             </div>
             <div className="flex items-center gap-4">
               <label className="w-32 text-right pr-2 text-gray-900 dark:text-gray-300">電話</label>
-              <Input className="bg-white text-black text-center font-semibold flex-1 border border-gray-300 shadow-sm rounded-lg placeholder-gray-400 dark:bg-[#181818] dark:text-white dark:border-neutral-800 dark:placeholder-gray-500" value={form.phone} onChange={e => handleChange("phone", e.target.value)} />
+              <Input className="bg-white text-black text-center font-semibold flex-1 border border-gray-300 shadow-sm rounded-lg placeholder-gray-400 dark:bg-[#181818] dark:text-white dark:border-neutral-800 dark:placeholder-gray-500" value={form.phone1} onChange={e => handleChange("phone1", e.target.value)} />
             </div>
             <div className="flex items-start gap-4">
               <label className="w-32 text-right pr-2 pt-2 text-gray-900 dark:text-gray-300">説明</label>
-              <Textarea className="bg-white text-black font-semibold min-h-[100px] flex-1 border border-gray-300 shadow-sm rounded-lg placeholder-gray-400 dark:bg-[#181818] dark:text-white dark:border-neutral-800 dark:placeholder-gray-500" value={form.description} onChange={e => handleChange("description", e.target.value)} style={{maxWidth: "358px"}} />
+              <Textarea className="bg-white text-black font-semibold min-h-[100px] flex-1 border border-gray-300 shadow-sm rounded-lg placeholder-gray-400 dark:bg-[#181818] dark:text-white dark:border-neutral-800 dark:placeholder-gray-500" value={form.descriptions} onChange={e => handleChange("descriptions", e.target.value)} style={{maxWidth: "358px"}} />
             </div>
           </div>
           <div className="flex justify-between mt-6">

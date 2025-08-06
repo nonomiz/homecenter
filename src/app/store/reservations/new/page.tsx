@@ -54,7 +54,7 @@ export default function NewReservationPage() {
   })
 
   // 예약된 시간 가져오기
-  const fetchReservedTimes = async (date: Date) => {
+  const fetchReservedTimes = async (date: Date, shopId: string) => {
     setIsLoading(true)
     try {
       const formattedDate = format(date, "yyyy-MM-dd")
@@ -63,14 +63,14 @@ export default function NewReservationPage() {
         headers: { 'Content-Type': 'application/json' },
         credentials: "include", // 쿠키 포함 필수
         body : JSON.stringify ({
-          shop_id: storeId,
+          shop_id: shopId,
           res_date: formattedDate
         })
       });
 
       if (response.ok) {
         const data: any = await response.json()
-        console.log(data)
+
         setReservedTimes(data.data)
       }
     } catch (error) {
@@ -80,19 +80,25 @@ export default function NewReservationPage() {
     }
   }
 
-  useEffect(() => {
-    // 클라이언트 사이드에서만 sessionStorage 접근
-    if (typeof window !== 'undefined') {
-      const id = sessionStorage.getItem('storeId')
-      console.log(id);
-      setStoreId(id);
-    }
-  }, [])
+  // useEffect(() => {
+  //   // 클라이언트 사이드에서만 sessionStorage 접근
+  //   if (typeof window !== 'undefined') {
+  //     const id = sessionStorage.getItem('storeId')
+  //     console.log(id);
+  //     setStoreId(id);
+  //     console.log("storeId", storeId);
+  //   }
+  // }, [])
 
   // 날짜 선택 시 예약된 시간 가져오기
   useEffect(() => {
-    if (form.date) {
-      fetchReservedTimes(form.date)
+    if (typeof window !== 'undefined') {
+      const id: string = sessionStorage.getItem('storeId') || "";
+      setStoreId(id);
+
+      if (form.date) {
+        fetchReservedTimes(form.date, id)
+      }
     }
   }, [form.date])
 
@@ -171,11 +177,11 @@ export default function NewReservationPage() {
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <div className="flex items-center space-x-2">
-          <Link href="/store/reservations">
+          {/* <Link href="/store/reservations">
             <Button variant="outline" size="icon">
               <ArrowLeft className="h-4 w-4" />
             </Button>
-          </Link>
+          </Link> */}
           <h2 className="text-3xl font-bold tracking-tight">新規予約</h2>
         </div>
       </div>

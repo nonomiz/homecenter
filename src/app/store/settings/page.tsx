@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MapPin, Clock, Bell, Shield, Image as ImageIcon } from "lucide-react"
 import { useState, useEffect } from "react"
 import { API_URL } from "@/lib/inc/constants"
+import { MessageDialog } from "@/components/ui/message-dialog"
 
 interface StoreInfo {
   name: string;
@@ -30,6 +31,15 @@ export default function SettingsPage() {
     descriptions: ""
   });
   const [storeId, setStoreId] = useState<string | null>(null);
+  const [messageDialog, setMessageDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+  })
 
   useEffect(() => {
     // 클라이언트 사이드에서만 sessionStorage 접근
@@ -80,9 +90,17 @@ export default function SettingsPage() {
         })
       });
       if (response.ok) {
-        alert("保存しました。");
+        setMessageDialog({
+          isOpen: true,
+          title: "",
+          message: "保存しました。"
+        });
       } else {
-        alert("保存に失敗しました。");
+        setMessageDialog({
+          isOpen: true,
+          title: "",
+          message: "保存に失敗しました。"
+        });
       }
     } catch (error) {
       alert("エラーが発生しました。");
@@ -300,6 +318,21 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+
+      {/* MessageDialog */}
+      <MessageDialog
+        open={messageDialog.isOpen}
+        onOpenChange={(open) => {
+          setMessageDialog({ ...messageDialog, isOpen: open })
+        }}
+        title={messageDialog.title}
+        message={messageDialog.message}
+        onConfirm={() => {
+          setMessageDialog({ ...messageDialog, isOpen: false })
+        }}
+        confirmText="確認"
+      />
     </div>
   )
 } 
