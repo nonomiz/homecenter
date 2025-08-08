@@ -19,7 +19,7 @@ import { StoreAddDialog, StoreAddData } from "@/components/admin/StoreAddDialog"
 import { useEffect, useState } from "react"
 import { StoreReportDialog } from "@/components/admin/StoreReportDialog"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { API_ADMIN_URL } from "@/lib/inc/constants"
+import { API_ADMIN_URL, API_URL } from "@/lib/inc/constants"
 import { MessageDialog } from "@/components/ui/message-dialog"
 
 export default function AdminStoresPage() {
@@ -164,8 +164,19 @@ export default function AdminStoresPage() {
     setDeleteTarget(store);
     setDeleteDialogOpen(true);
   };
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     // 실제 삭제 로직 추가 가능
+    const response = await fetch(`${API_ADMIN_URL}/shop_delete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: "include",
+      body: JSON.stringify({
+        shop_id : deleteTarget?.shop_id,
+      })
+    });
+
+    await fetchShopList();
+
     setDeleteDialogOpen(false);
     setDeleteTarget(null);
   };

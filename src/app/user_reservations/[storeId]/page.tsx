@@ -68,7 +68,7 @@ export default function StoreDetailPage() {
             </div>
           </div>
           <div className="flex flex-col md:flex-row gap-4 justify-evenly mt-12">
-            <Button className="w-full md:w-40" onClick={() => router.push(`/user_reservations/new?storeId=${store.shop_id}`)}>
+            <Button className="w-full md:w-40" onClick={() => router.push(`/user_reservations/email-verification?storeId=${store.shop_id}`)}>
               新規予約
             </Button>
             <Button className="w-full md:w-40" variant="outline" onClick={() => router.push(`/`)}>

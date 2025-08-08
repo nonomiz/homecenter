@@ -94,12 +94,30 @@ export default function NewReservationForm() {
   }
 
   useEffect(() => {
-    const storeId = searchParams.get('storeId')
-    if (!storeId) {
-      router.push('/')
-      return
+    const token = searchParams.get('token')
+
+    const fetchVerify = async () => {
+      try {
+        const response = await fetch(`${API_URL}/user_email_verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include', // 쿠키 포함 필수
+          body: JSON.stringify({ token: token })
+        });
+        if (!response.ok) throw new Error("Failed to fetch shop details");
+        const jsonBody = await response.json();
+        console.log("Shop Details:", jsonBody); // Handle the shop details as needed
+
+        setStoreId(jsonBody.data.shop_id);
+        setForm(prev => ({ ...prev, email: decodeURIComponent(jsonBody.data.email) }))
+      } catch (error) {
+        console.error("Error fetching shop details:", error);
+
+        router.push('/')
+      }
     }
-    setStoreId(storeId)
+
+    fetchVerify();
   }, [searchParams, router])
 
   // 날짜 선택 시 예약된 시간 가져오기

@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { Suspense } from "react";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -70,7 +71,10 @@ export default function RootLayout({
                 </div>
               </div>
             </header>
-            <main className="flex-1">{children}</main>
+            <main className="flex-1">
+              {/* 빌드 에러 대응 */}
+              <Suspense>{children}</Suspense>
+            </main>
           </div>
         </ThemeProvider>
       </body>
