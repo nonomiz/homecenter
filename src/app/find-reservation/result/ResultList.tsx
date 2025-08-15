@@ -66,12 +66,12 @@ export default function ResultList() {
 
     if (response.ok) {
       const jsonBody = await response.json();
-      console.log(jsonBody);
+      // console.log(jsonBody);
       
       setReservations(jsonBody.data);
     }
     else {
-      console.log("結果がありません。")
+      // console.log("結果がありません。")
     }
   };
 

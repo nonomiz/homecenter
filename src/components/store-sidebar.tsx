@@ -25,7 +25,7 @@ const sidebarNavItems = [
   //   icon: LayoutDashboard,
   // },
   {
-    title: "予約管理",
+    title: "予約一覧",
     href: "/store/reservations",
     icon: Calendar,
   },
@@ -53,7 +53,7 @@ export function Sidebar({ storeData }: StoreSidebarProps) {
   const router = useRouter()
   const [storeId, setStoreId] = useState<string | null>(null)
 
-  console.log("storeData", storeData)
+  // console.log("storeData", storeData)
 
   useEffect(() => {
     // 클라이언트 사이드에서만 sessionStorage 접근
@@ -65,13 +65,13 @@ export function Sidebar({ storeData }: StoreSidebarProps) {
   const handleLogout = async () => {
     if (!storeId) return
     
-    const res = await fetch(`${API_URL}/logout`, {
+    const res = await fetch(`${API_URL}/shop_logout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include', // 쿠키 포함 필수!!!
       body: JSON.stringify({ shop_id: storeId })
     });
-    console.log(res);
+    // console.log(res);
 
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem("storeToken")

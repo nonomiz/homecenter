@@ -86,6 +86,8 @@ export default function AdminStoresPage() {
         title: "店舗編集",
         message: "保存しました。"
       });
+
+      fetchShopList();
     }
     else {
       setMessageDialog({
@@ -119,7 +121,7 @@ export default function AdminStoresPage() {
 
     if (response.ok) {
       const jsonData = await response.json();
-      console.log(jsonData);
+      // console.log(jsonData);
 
       let reportDatas: any = {};
       let resDatas: any[] = jsonData.data;
@@ -135,11 +137,11 @@ export default function AdminStoresPage() {
         reportDatas[data.res_month][data.reservation_status] = Number(data.count || 0);
       });
 
-      console.log("reportDatas", reportDatas);
+      // console.log("reportDatas", reportDatas);
       // setShopReportsDatas(reportDatas);
 
       let objKeys = Object.keys(reportDatas);
-      console.log("objKeys", objKeys);
+      // console.log("objKeys", objKeys);
       // setResMonths(objKeys);
       
       let storeReportData: any[] = [];
@@ -188,6 +190,9 @@ export default function AdminStoresPage() {
     setAddOpen(true);
   };
   const handleAddSave = async(data: StoreAddData) => {
+    const bodyData = JSON.stringify(data);
+    // console.log(bodyData);
+    
     setAddOpen(false);
     // 신규 등록 로직 추가 가능
 
@@ -196,21 +201,23 @@ export default function AdminStoresPage() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: bodyData,
     });
 
     if (response.ok) {
       const jsonBody = await response.json();
-      console.log(jsonBody);
+      // console.log(jsonBody);
       setMessageDialog({
         isOpen: true,
         title: '店舗追加成功',
         message: "店舗追加が完了しました。",
       });
+
+      fetchShopList();
     }
     else {
       const jsonBody = await response.json();
-      console.log(jsonBody);
+      // console.log(jsonBody);
       setMessageDialog({
         isOpen: true,
         title: '店舗追加失敗',
@@ -233,7 +240,7 @@ export default function AdminStoresPage() {
       },
     });
     const jsonBody = await response.json();
-    console.log(jsonBody);
+    // console.log(jsonBody);
 
     setStores(jsonBody.data);
   }
@@ -243,7 +250,7 @@ export default function AdminStoresPage() {
   }, []);
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
+    <div className="flex-1 space-y-4 p-8 pt-6" style={{minWidth: "1180px"}}>
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight"></h2>
         <div className="flex items-center space-x-2">

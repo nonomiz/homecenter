@@ -32,7 +32,7 @@ export default function FindReservationPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block mb-1 text-sm font-medium">EMail</label>
+                <label className="block mb-1 text-sm font-medium">メール</label>
                 <Input
                   type="email"
                   

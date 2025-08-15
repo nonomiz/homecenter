@@ -57,7 +57,7 @@ export function StoreForm() {
   });
 
   function onSubmit(data: StoreFormValues) {
-    console.log(data);
+    // console.log(data);
     // API 호출 로직 추가 예정
   }
 

@@ -83,7 +83,7 @@ export default function NewReservationForm() {
 
       if (response.ok) {
         const data = await response.json()
-        console.log(data);
+        // console.log(data);
         setReservedTimes(data.data)
       }
     } catch (error) {
@@ -106,7 +106,7 @@ export default function NewReservationForm() {
         });
         if (!response.ok) throw new Error("Failed to fetch shop details");
         const jsonBody = await response.json();
-        console.log("Shop Details:", jsonBody); // Handle the shop details as needed
+        // console.log("Shop Details:", jsonBody); // Handle the shop details as needed
 
         setStoreId(jsonBody.data.shop_id);
         setForm(prev => ({ ...prev, email: decodeURIComponent(jsonBody.data.email) }))
@@ -147,7 +147,7 @@ export default function NewReservationForm() {
     }
 
     // 예약된 시간대 제외
-    console.log(reservedTimes);
+    // console.log(reservedTimes);
     availableSlots = availableSlots.filter(time => {
       const reservedTime = reservedTimes.find(rt => rt.res_time === time)
       return !reservedTime
@@ -161,7 +161,7 @@ export default function NewReservationForm() {
     if (!storeId) return
 
     try {
-      console.log(form);
+      // console.log(form);
 
       const postData = {
         shop_id: storeId,
@@ -173,7 +173,7 @@ export default function NewReservationForm() {
         battery: form.battery
       };
 
-      console.log(postData);
+      // console.log(postData);
 
       const response = await fetch(`${API_URL}/add_reservation`, {
         method: 'POST',
@@ -183,7 +183,7 @@ export default function NewReservationForm() {
       })
 
       const jsonData = await response.json();
-      console.log(jsonData);
+      // console.log(jsonData);
 
       if (response.ok) {
         let message = `予約番号[${jsonData.data.reservation_id}]で予約されました。`

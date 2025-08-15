@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MapPin, Clock, Bell, Shield, Image as ImageIcon } from "lucide-react"
+import { MapPin, Clock, Bell, Shield, Image as ImageIcon, AlertTriangle } from "lucide-react"
 import { useState, useEffect } from "react"
 import { API_URL } from "@/lib/inc/constants"
 import { MessageDialog } from "@/components/ui/message-dialog"
@@ -20,6 +20,8 @@ interface StoreInfo {
   password: string;
   descriptions: string;
 }
+
+type CheckStatus = 'idle' | 'checking' | 'available' | 'duplicate' | 'warning';
 
 export default function SettingsPage() {
   const [storeInfo, setStoreInfo] = useState<StoreInfo>({
@@ -41,6 +43,13 @@ export default function SettingsPage() {
     message: '',
   })
 
+  const [checkEmailMessage, setCheckEmailMessage] = useState<string>('');
+
+  const [checkPasswordStatus, setCheckPasswordStatus] = useState<CheckStatus>('idle');
+  const [checkNameStatus, setCheckNameStatus] = useState<CheckStatus>('idle');
+  const [checkEmailStatus, setCheckEmailStatus] = useState<CheckStatus>('idle');
+  const [checkPhoneStatus, setCheckPhoneStatus] = useState<CheckStatus>('idle');
+
   useEffect(() => {
     // 클라이언트 사이드에서만 sessionStorage 접근
     if (typeof window !== 'undefined') {
@@ -59,7 +68,7 @@ export default function SettingsPage() {
       });
       if (response.ok) {
         const jsonData = await response.json();
-        console.log(jsonData);
+        // console.log(jsonData);
         setStoreInfo(jsonData.data);
       }
     };
@@ -69,7 +78,38 @@ export default function SettingsPage() {
   }, [storeId]);
 
   const handleSave = async () => {
-    console.log("Save...", storeInfo)
+    // console.log("Save...", storeInfo)
+
+    let status = true;
+    if (!storeInfo.password) {
+      setCheckPasswordStatus('warning');
+      status = false;
+    }
+
+    if (!storeInfo.name) {
+      setCheckNameStatus('warning');
+      status = false;
+    }
+
+    if (!storeInfo.email) {
+      setCheckEmailStatus('warning');
+      setCheckEmailMessage('メールを入力してください。')
+      status = false;
+    }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(storeInfo.email)) {
+      setCheckEmailStatus('warning');
+      setCheckEmailMessage('メールアドレスの形式が無効です。')
+      status = false;
+    }
+
+    if (!storeInfo.phone1) {
+      setCheckPhoneStatus('warning');
+      status = false;
+    }
+
+    if (!status) {
+      return;
+    }
 
     if (!storeId) {
       alert("Store ID is missing.");
@@ -108,6 +148,75 @@ export default function SettingsPage() {
     }
   };
 
+  const handleChange = (field: keyof StoreInfo, value: string) => {
+    setStoreInfo((prev) => ({...prev, [field]: value}))
+
+    if (field === 'password' || field === 'name' || field === 'email' || field === 'phone1') {
+      setCheckPasswordStatus('idle');
+      setCheckNameStatus('idle');
+      setCheckEmailStatus('idle');
+      setCheckPhoneStatus('idle');
+
+      setCheckEmailMessage('');
+    }
+  }
+
+  const renderCheckPasswordResult = () => {
+    switch (checkPasswordStatus) {
+      case 'warning':
+        return (
+          <div className="flex items-center gap-2 text-red-600">
+            <AlertTriangle className="h-4 w-4" />
+            <span className="text-sm">パスワードを入力してください。</span>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const renderCheckNameResult = () => {
+    switch (checkNameStatus) {
+      case 'warning':
+        return (
+          <div className="flex items-center gap-2 text-red-600">
+            <AlertTriangle className="h-4 w-4" />
+            <span className="text-sm">店舗名を入力してください。</span>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const renderCheckEmailResult = () => {
+    switch (checkEmailStatus) {
+      case 'warning':
+        return (
+          <div className="flex items-center gap-2 text-red-600">
+            <AlertTriangle className="h-4 w-4" />
+            <span className="text-sm">{checkEmailMessage}</span>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const renderCheckPhoneResult = () => {
+    switch (checkPhoneStatus) {
+      case 'warning':
+        return (
+          <div className="flex items-center gap-2 text-red-600">
+            <AlertTriangle className="h-4 w-4" />
+            <span className="text-sm">電話番号を入力してください。</span>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -140,32 +249,62 @@ export default function SettingsPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">パスワード</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="パスワードを入力"
-                  value={storeInfo.password}
-                  onChange={e => setStoreInfo({ ...storeInfo, password: e.target.value })}
-                />
+                <div className="flex-1 space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="パスワードを入力"
+                      value={storeInfo.password}
+                      onChange={e => handleChange("password", e.target.value)}
+                    />
+                  </div>
+                  {renderCheckPasswordResult()}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="name">店舗名</Label>
-                <Input
-                  id="name"
-                  placeholder="店舗名を入力"
-                  value={storeInfo.name}
-                  onChange={e => setStoreInfo({ ...storeInfo, name: e.target.value })}
-                />
+                <div className="flex-1 space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      id="name"
+                      placeholder="店舗名を入力"
+                      value={storeInfo.name}
+                      onChange={e => handleChange("name", e.target.value) /*setStoreInfo({ ...storeInfo, name: e.target.value })*/}
+                    />
+                  </div>
+                  {renderCheckNameResult()}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">メール</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="メールを入力"
-                  value={storeInfo.email}
-                  onChange={e => setStoreInfo({ ...storeInfo, email: e.target.value })}
-                />
+                <div className="flex-1 space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="メールを入力"
+                      value={storeInfo.email}
+                      onChange={e => handleChange("email", e.target.value)}
+                      required
+                    />
+                  </div>
+                  {renderCheckEmailResult()}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">電話番号</Label>
+                <div className="flex-1 space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      id="phone"
+                      placeholder="電話番号を入力"
+                      value={storeInfo.phone1}
+                      onChange={e => handleChange("phone1", e.target.value)}
+                    />
+                  </div>
+                  {renderCheckPhoneResult()}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="address">住所</Label>
@@ -174,7 +313,7 @@ export default function SettingsPage() {
                     id="address"
                     placeholder="住所を入力"
                     value={storeInfo.address}
-                    onChange={e => setStoreInfo({ ...storeInfo, address: e.target.value })}
+                    onChange={e => handleChange("address", e.target.value)}
                   />
                   {/* <Button variant="outline" size="icon">
                     <MapPin className="h-4 w-4" />
@@ -182,19 +321,10 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">電話番号</Label>
-                <Input
-                  id="phone"
-                  placeholder="電話番号を入力"
-                  value={storeInfo.phone1}
-                  onChange={e => setStoreInfo({ ...storeInfo, phone1: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="description">説明</Label>
                 <Textarea id="description" placeholder="店舗の説明を入力"
                   value={storeInfo.descriptions}
-                  onChange={e => setStoreInfo({ ...storeInfo, descriptions: e.target.value })}
+                  onChange={e => handleChange("descriptions", e.target.value)}
                 />
               </div>
               <Button onClick={handleSave}>保存</Button>

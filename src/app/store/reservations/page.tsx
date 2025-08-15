@@ -90,7 +90,7 @@ export default function ReservationsPage() {
       sendData["res_date"] = formattedDate;
     }
 
-    const response = await fetch(`${API_URL}/mypage`, {
+    const response = await fetch(`${API_URL}/shop_reservations`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: "include",

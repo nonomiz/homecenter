@@ -39,7 +39,7 @@ export default function Home() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         setStores(data.data);
         setFilteredStores(data.data);
       }
@@ -85,7 +85,7 @@ export default function Home() {
     return filteredStores.map((store) => (
       // <Link key={store.shop_id} href={`/user_reservations/${store.shop_id}`} className="block">
       <div key={store.shop_id}>
-        <Card className="transition-shadow hover:shadow-lg">
+        <Card className="transition-shadow hover:shadow-lg gap-1">
           <CardHeader>
             <CardTitle>{store.name}</CardTitle>
             <CardDescription className="flex items-center gap-2">

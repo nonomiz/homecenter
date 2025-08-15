@@ -20,7 +20,7 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "予約管理システム",
+  title: "GC Homecenter",
   description: "店舗予約管理システム",
 };
 

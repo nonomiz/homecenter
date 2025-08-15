@@ -18,7 +18,7 @@ export default function StoreReportPage() {
     // 클라이언트 사이드에서만 sessionStorage 접근
     if (typeof window !== 'undefined') {
       const id = sessionStorage.getItem("storeId");
-      console.log("Report => ", id);
+      // console.log("Report => ", id);
       setStoreId(id);
     }
   }, []);
@@ -44,7 +44,7 @@ export default function StoreReportPage() {
 
       if (response.ok) {
         const jsonData = await response.json();
-        console.log(jsonData);
+        // console.log(jsonData);
 
         let reportDatas: any = {};
         let resDatas: any[] = jsonData.data;
@@ -60,11 +60,11 @@ export default function StoreReportPage() {
           reportDatas[data.res_month][data.reservation_status] = Number(data.count || 0);
         });
 
-        console.log("reportDatas", reportDatas);
+        // console.log("reportDatas", reportDatas);
         setShopReportsDatas(reportDatas);
 
         let objKeys = Object.keys(reportDatas);
-        console.log("objKeys", objKeys);
+        // console.log("objKeys", objKeys);
         setResMonths(objKeys);
         
       }

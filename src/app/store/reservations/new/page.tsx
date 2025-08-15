@@ -135,7 +135,7 @@ export default function NewReservationPage() {
     if (!storeId) return
 
     try {
-      console.log(form);
+      // console.log(form);
 
       const postData = {
         shop_id: storeId,
@@ -147,7 +147,7 @@ export default function NewReservationPage() {
         battery: form.battery
       };
 
-      console.log(postData);
+      // console.log(postData);
 
       const response = await fetch(`${API_URL}/add_reservation`, {
         method: 'POST',

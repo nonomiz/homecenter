@@ -32,7 +32,7 @@ export default function StoreDetailPage() {
       if (response.ok) {
         const jsonData = await response.json();
 
-        console.log(jsonData.data);
+        // console.log(jsonData.data);
         setStore(jsonData.data);
       }
       setLoading(false);

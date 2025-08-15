@@ -21,15 +21,15 @@ export default function AdminLoginPage() {
     setError("")
 
     // TODO: 실제 로그인 API 연동
-    const res = await fetch(`${API_ADMIN_URL}/gclogin`, {
+    const res = await fetch(`${API_ADMIN_URL}/admin_login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include', // 쿠키 포함 필수!!!
-      body: JSON.stringify({ username: id, password: password })
+      body: JSON.stringify({ adminId: id, password: password })
     });
 
     const jsonBody = await res.json(); // 응답을 JSON으로 변환
-    console.log(jsonBody); // 응답 JSON 확인
+    // console.log(jsonBody); // 응답 JSON 확인
 
     if (res.ok) {
       // 로그인 성공 시 세션 저장

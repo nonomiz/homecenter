@@ -51,13 +51,13 @@ export function Sidebar() {
   const handleLogout = async () => {
     if (!adminId) return
     
-    const res = await fetch(`${API_ADMIN_URL}/gclogout`, {
+    const res = await fetch(`${API_ADMIN_URL}/admin_logout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include', // 쿠키 포함 필수!!!
       body: JSON.stringify({ adminId: adminId })
     });
-    console.log(res);
+    // console.log(res);
 
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem("adminLoggedIn")

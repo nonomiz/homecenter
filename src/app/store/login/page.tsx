@@ -23,7 +23,7 @@ export default function StoreLoginPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch(`${API_URL}/login`, {
+      const response = await fetch(`${API_URL}/shop_login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
