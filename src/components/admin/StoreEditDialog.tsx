@@ -13,6 +13,7 @@ export interface StoreEditData {
   address: string;
   phone1: string;
   password: string;
+  charger: string;
   descriptions: string;
 }
 
@@ -32,6 +33,7 @@ interface StoreInfo {
   address: string;
   phone1: string;
   password: string;
+  charger: string;
   descriptions: string;
 }
 
@@ -45,6 +47,7 @@ export function StoreEditDialog({ open, onOpenChange, store, onSave, onCancel, t
     email: "",
     address: "",
     phone1: "",
+    charger: "",
     descriptions: "",
   });
 
@@ -55,6 +58,7 @@ export function StoreEditDialog({ open, onOpenChange, store, onSave, onCancel, t
     address: "",
     phone1: "",
     password: "",
+    charger: "",
     descriptions: ""
   });
 
@@ -76,6 +80,7 @@ export function StoreEditDialog({ open, onOpenChange, store, onSave, onCancel, t
       if (response.ok) {
         const jsonData = await response.json();
         // console.log(jsonData);
+        jsonData.data.charger = jsonData.data.charger || "";
         jsonData.data.descriptions = jsonData.data.descriptions || "";
         setStoreInfo(jsonData.data);
         setForm(jsonData.data);
@@ -261,6 +266,10 @@ export function StoreEditDialog({ open, onOpenChange, store, onSave, onCancel, t
             <div className="flex items-center gap-4">
               <label className="w-32 text-right pr-2 text-gray-900 dark:text-gray-300">住所</label>
               <Input className="bg-white text-black text-left flex-1 border border-gray-300 shadow-sm rounded-lg placeholder-gray-400 dark:bg-[#181818] dark:text-white dark:border-neutral-800 dark:placeholder-gray-500" value={form.address} onChange={e => handleChange("address", e.target.value)} />
+            </div>
+            <div className="flex items-center gap-4">
+              <label className="w-32 text-right pr-2 text-gray-900 dark:text-gray-300">充電器</label>
+              <Input className="bg-white text-black text-left flex-1 border border-gray-300 shadow-sm rounded-lg placeholder-gray-400 dark:bg-[#181818] dark:text-white dark:border-neutral-800 dark:placeholder-gray-500" value={form.charger} onChange={e => handleChange("charger", e.target.value)} />
             </div>
             <div className="flex items-start gap-4">
               <label className="w-32 text-right pr-2 pt-2 text-gray-900 dark:text-gray-300">説明</label>

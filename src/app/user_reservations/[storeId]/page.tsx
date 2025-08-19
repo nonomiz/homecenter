@@ -12,6 +12,7 @@ interface StoreDetail {
   name: string;
   address: string;
   phone1: string;
+  charger?: string;
   descriptions?: string;
 }
 
@@ -61,6 +62,8 @@ export default function StoreDetailPage() {
               <div className="text-base mb-6">{store.address}</div>
               <div className="text-lg font-medium mb-2">電話番号</div>
               <div className="text-base mb-6">{store.phone1}</div>
+              <div className="text-lg font-medium mb-2">充電器</div>
+              <div className="text-base mb-6">{store.charger}</div>
             </div>
             <div className="text-lg font-medium mb-2">店舗説明</div>
             <div className="border p-4 min-h-[120px] mb-8">

@@ -18,6 +18,7 @@ interface StoreInfo {
   address: string;
   phone1: string;
   password: string;
+  charger: string;
   descriptions: string;
 }
 
@@ -30,6 +31,7 @@ export default function SettingsPage() {
     address: "",
     phone1: "",
     password: "",
+    charger: "",
     descriptions: ""
   });
   const [storeId, setStoreId] = useState<string | null>(null);
@@ -126,6 +128,7 @@ export default function SettingsPage() {
           address: storeInfo.address,
           phone: storeInfo.phone1,
           email: storeInfo.email,
+          charger: storeInfo.charger,
           desc: storeInfo.descriptions
         })
       });
@@ -315,9 +318,17 @@ export default function SettingsPage() {
                     value={storeInfo.address}
                     onChange={e => handleChange("address", e.target.value)}
                   />
-                  {/* <Button variant="outline" size="icon">
-                    <MapPin className="h-4 w-4" />
-                  </Button> */}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="address">充電器</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="address"
+                    placeholder="充電器情報を入力"
+                    value={storeInfo.charger}
+                    onChange={e => handleChange("charger", e.target.value)}
+                  />
                 </div>
               </div>
               <div className="space-y-2">

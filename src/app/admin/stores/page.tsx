@@ -76,6 +76,7 @@ export default function AdminStoresPage() {
         address: data.address,
         phone: data.phone1,
         email: data.email,
+        charger: data.charger,
         desc: data.descriptions
       })
     });
