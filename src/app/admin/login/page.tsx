@@ -29,7 +29,7 @@ export default function AdminLoginPage() {
     });
 
     const jsonBody = await res.json(); // 응답을 JSON으로 변환
-    // console.log(jsonBody); // 응답 JSON 확인
+    console.log(jsonBody); // 응답 JSON 확인
 
     if (res.ok) {
       // 로그인 성공 시 세션 저장
