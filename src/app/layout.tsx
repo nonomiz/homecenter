@@ -52,7 +52,7 @@ export default function RootLayout({
               <div className="container flex h-14 items-center">
                 <div className="mr-4 flex">
                   <Link className="mr-6 flex items-center space-x-2" href="/">
-                    <span className="font-bold">予約</span>
+                    <span>予約</span>
                   </Link>
                   <nav className="flex items-center space-x-6 text-sm font-medium">
                     <Link
