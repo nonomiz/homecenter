@@ -46,6 +46,7 @@ export default function NewReservationPage() {
   const [storeId, setStoreId] = useState<string | null>(null)
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [dialog, setDialog] = useState<{ open: boolean; message: string; onConfirm?: () => void }>({ open: false, message: "" })
+  const [isSubmit, setIsSubmit] = useState(false);
 
   // 운영시간 09:00 ~ 20:00
   const timeSlots = Array.from({ length: 12 }, (_, i) => {
@@ -137,6 +138,8 @@ export default function NewReservationPage() {
     try {
       // console.log(form);
 
+      setIsSubmit(true);
+
       const postData = {
         shop_id: storeId,
         res_date: form.date ? format(form.date, 'yyyy-MM-dd') : '',
@@ -155,6 +158,8 @@ export default function NewReservationPage() {
         credentials: "include",
         body: JSON.stringify(postData)
       })
+
+      setIsSubmit(false);
 
       if (response.ok) {
         setDialog({
@@ -321,7 +326,7 @@ export default function NewReservationPage() {
           <Link href="/store/reservations">
             <Button variant="outline">キャンセル</Button>
           </Link>
-          <Button type="submit">予約確定</Button>
+          <Button type="submit" disabled={isSubmit}>予約確定</Button>
         </div>
       </form>
       <MessageDialog
