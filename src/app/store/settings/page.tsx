@@ -321,10 +321,10 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="address">充電器</Label>
+                <Label htmlFor="charger">充電器</Label>
                 <div className="flex gap-2">
                   <Input
-                    id="address"
+                    id="charger"
                     placeholder="充電器情報を入力"
                     value={storeInfo.charger}
                     onChange={e => handleChange("charger", e.target.value)}
