@@ -1,3 +1,5 @@
+"use client";
+
 import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
 import { Noto_Sans_JP } from "next/font/google";
@@ -7,6 +9,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Suspense } from "react";
+import { usePathname } from "next/navigation";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -19,7 +22,7 @@ const notoSansJP = Noto_Sans_JP({
   weight: ["400", "500", "700"],
 });
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "GC Homecenter",
   description: "店舗予約管理システム",
 };
@@ -29,8 +32,14 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathName = usePathname();
+
   return (
     <html lang="ja" suppressHydrationWarning>
+      <head>
+        <title>GC Homecenter</title>
+        <meta name="description" content="店舗予約管理システム" />
+      </head>
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
@@ -52,18 +61,24 @@ export default function RootLayout({
               <div className="container flex h-14 items-center">
                 <div className="mr-4 flex">
                   <nav className="flex items-center space-x-6 text-sm font-medium p-3">
-                    <Link className="transition-colors hover:text-foreground/80 text-foreground/60" href="/">
+                    <Link className={cn("transition-colors hover:text-foreground/80 text-foreground/60",
+                      pathName === "/" ? "text-orange-300" : "text-foreground/60"
+                    )} href="/">
                       <span>予約</span>
                     </Link>
                     <Link
                       href="/store/reservations"
-                      className="transition-colors hover:text-foreground/80 text-foreground/60"
+                      className={cn("transition-colors hover:text-foreground/80 text-foreground/60",
+                        (pathName === "/store/reservations" || pathName === "/store/login") ? "text-orange-300" : "text-foreground/60"
+                      )}
                     >
                       店舗
                     </Link>
                     <Link
                       href="/admin/stores"
-                      className="transition-colors hover:text-foreground/80 text-foreground/60"
+                      className={cn("transition-colors hover:text-foreground/80 text-foreground/60",
+                        (pathName === "/admin/stores" || pathName === "/admin/login") ? "text-orange-300" : "text-foreground/60"
+                      )}
                     >
                       管理者
                     </Link>
