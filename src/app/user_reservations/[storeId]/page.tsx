@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Store, MapPin, Phone, BatteryCharging, FileText } from "lucide-react";
 import { API_URL } from "@/lib/inc/constants";
 
 interface StoreDetail {
@@ -53,19 +54,34 @@ export default function StoreDetailPage() {
     <main className="container mx-auto py-8 px-2 sm:px-4">
       <Card className="max-w-xl mx-auto p-0">
         <div className="border-b px-6 py-4">
-          <h1 className="text-2xl font-bold text-center">{store.name}</h1>
+          <h1 className="text-2xl font-bold text-center flex items-center justify-center gap-2">
+            <Store className="h-7 w-7 shrink-0" />
+            {store.name}
+          </h1>
         </div>
         <CardContent className="py-8 px-8">
           <div className="mb-8">
             <div className="mb-6">
-              <div className="text-lg font-medium mb-2">住所</div>
-              <div className="text-base mb-6">{store.address}</div>
-              <div className="text-lg font-medium mb-2">電話番号</div>
-              <div className="text-base mb-6">{store.phone1}</div>
-              <div className="text-lg font-medium mb-2">充電器</div>
-              <div className="text-base mb-6">{store.charger}</div>
+              <div className="text-lg font-medium mb-2 flex items-center gap-2">
+                <MapPin className="h-5 w-5 shrink-0" />
+                住所
+              </div>
+              <div className="text-base mb-6 min-h-6">{store.address}</div>
+              <div className="text-lg font-medium mb-2 flex items-center gap-2">
+                <Phone className="h-5 w-5 shrink-0" />
+                電話番号
+              </div>
+              <div className="text-base mb-6 min-h-6">{store.phone1}</div>
+              <div className="text-lg font-medium mb-2 flex items-center gap-2">
+                <BatteryCharging className="h-6 w-6 shrink-0" />
+                充電器
+              </div>
+              <div className="text-base mb-6 min-h-6">{store.charger || "一般充電器"}</div>
             </div>
-            <div className="text-lg font-medium mb-2">店舗説明</div>
+            <div className="text-lg font-medium mb-2 flex items-center gap-2">
+              <FileText className="h-5 w-5 shrink-0" />
+              店舗説明
+            </div>
             <div className="border p-4 min-h-[120px] mb-8">
               <div className="text-base">{store.descriptions || ""}</div>
             </div>

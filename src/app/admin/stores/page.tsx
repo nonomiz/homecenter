@@ -352,7 +352,7 @@ export default function AdminStoresPage() {
           <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-32">店舗名</TableHead>
+                <TableHead className="w-36">店舗名</TableHead>
                 <TableHead className="w-64">住所</TableHead>
                 <TableHead className="w-32">電話</TableHead>
                 <TableHead className="w-40">メール</TableHead>
@@ -371,7 +371,7 @@ export default function AdminStoresPage() {
                   .filter((row: any) => row.name.includes(search) && row.phone1.includes(phoneSearch) && row.email.includes(emailSearch))
                   .map((row: any, i) => (
                   <TableRow key={i}>
-                    <TableCell className="w-32">{row.name}</TableCell>
+                    <TableCell className="w-36">{row.name}</TableCell>
                     <TableCell className="w-64">{row.address}</TableCell>
                     <TableCell className="w-32">{row.phone1}</TableCell>
                     <TableCell className="w-40">{row.email}</TableCell>
