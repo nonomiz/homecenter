@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Store, MapPin, Phone, BatteryCharging, FileText } from "lucide-react";
 import { API_URL } from "@/lib/inc/constants";
-import { StoreMap } from "./StoreMap";
+import { StoreMap } from "@/components/StoreMap";
 
 interface StoreDetail {
   shop_id: string;

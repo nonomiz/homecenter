@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, MapPin, Clock, Star, Calendar, Users, Phone, Book } from "lucide-react"
 import Link from "next/link"
 import { API_URL } from "@/lib/inc/constants"
+import { StoreMap } from "@/components/StoreMap"
 
 interface Store {
   shop_id: string
@@ -89,11 +90,24 @@ export default function Home() {
           <CardHeader>
             <CardTitle>{store.name}</CardTitle>
             <CardDescription className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              <span>{store.address}</span>
+              {/* <MapPin className="h-4 w-4" />
+              <span>{store.address}</span> */}
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                <span>{store.address}</span>
+              </div>
+              {/* <div className="flex items-center gap-1">
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                <span>4.5</span>
+              </div> */}
+            </div>
+            <div className="flex items-center justify-center mb-4">
+              <StoreMap address={store.address} showTitle={false} showMarker={false} />
+            </div>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4" />

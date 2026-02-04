@@ -6,6 +6,10 @@ import { Map } from "lucide-react";
 interface StoreMapProps {
   address: string;
   className?: string;
+  /** 地図アイコン・ラベル（「地図」）の表示有無。未指定時は true */
+  showTitle?: boolean;
+  /** マーカー表示の有無。true のとき住所をジオコードしてマーカー表示。未指定時は true */
+  showMarker?: boolean;
 }
 
 interface GeocodeResult {
@@ -14,16 +18,17 @@ interface GeocodeResult {
 }
 
 /**
- * store.address を使って Google Maps iframe で位置を表示するコンポーネント（マーカー付き）
+ * 住所を使って Google Maps iframe で位置を表示するコンポーネント（マーカー付き）
+ * 共通利用可能
  */
-export function StoreMap({ address, className = "" }: StoreMapProps) {
+export function StoreMap({ address, className = "", showTitle = true, showMarker = true }: StoreMapProps) {
   const [coords, setCoords] = useState<{ lat: string; lon: string } | null>(null);
-  const [geocodeLoading, setGeocodeLoading] = useState(true);
+  const [geocodeLoading, setGeocodeLoading] = useState(showMarker);
 
   const trimmedAddress = address?.trim();
 
   useEffect(() => {
-    if (!trimmedAddress) {
+    if (!trimmedAddress || !showMarker) {
       setCoords(null);
       setGeocodeLoading(false);
       return;
@@ -53,23 +58,26 @@ export function StoreMap({ address, className = "" }: StoreMapProps) {
       .finally(() => setGeocodeLoading(false));
 
     return () => controller.abort();
-  }, [trimmedAddress]);
+  }, [trimmedAddress, showMarker]);
 
   if (!trimmedAddress) return null;
 
   const encodedAddress = encodeURIComponent(trimmedAddress);
-  const embedUrl = coords
+  const useCoords = showMarker && coords;
+  const embedUrl = useCoords
     ? `https://www.google.com/maps?q=${coords.lat},${coords.lon}&z=17&output=embed&hl=ja`
     : `https://www.google.com/maps?q=${encodedAddress}&output=embed&hl=ja`;
 
   return (
     <div className={className}>
-      <div className="text-lg font-medium mb-2 flex items-center gap-2">
-        <Map className="h-5 w-5 shrink-0" />
-        地図
-      </div>
+      {showTitle && (
+        <div className="text-lg font-medium mb-2 flex items-center gap-2">
+          <Map className="h-5 w-5 shrink-0" />
+          地図
+        </div>
+      )}
       <div className="border rounded-lg overflow-hidden aspect-video min-h-[240px] bg-muted relative">
-        {geocodeLoading && (
+        {showMarker && geocodeLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-muted/80 z-10 text-sm text-muted-foreground rounded-lg">
             地図を読み込み中...
           </div>
@@ -87,7 +95,7 @@ export function StoreMap({ address, className = "" }: StoreMapProps) {
       </div>
       <a
         href={
-          coords
+          useCoords && coords
             ? `https://www.google.com/maps?q=${coords.lat},${coords.lon}&hl=ja`
             : `https://www.google.com/maps/search/?api=1&query=${encodedAddress}&hl=ja`
         }
