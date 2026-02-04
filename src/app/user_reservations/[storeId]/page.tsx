@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Store, MapPin, Phone, BatteryCharging, FileText } from "lucide-react";
 import { API_URL } from "@/lib/inc/constants";
+import { StoreMap } from "./StoreMap";
 
 interface StoreDetail {
   shop_id: string;
@@ -67,6 +68,7 @@ export default function StoreDetailPage() {
                 住所
               </div>
               <div className="text-base mb-6 min-h-6">{store.address}</div>
+              <StoreMap address={store.address} className="mb-8" />
               <div className="text-lg font-medium mb-2 flex items-center gap-2">
                 <Phone className="h-5 w-5 shrink-0" />
                 電話番号
