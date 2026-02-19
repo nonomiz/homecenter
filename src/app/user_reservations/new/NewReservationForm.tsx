@@ -349,7 +349,6 @@ export default function NewReservationForm() {
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   placeholder="090-1234-5678"
                   required
-                  pattern="([0-9]{2}-[0-9]{4}-[0-9]{4}|[0-9]{3}-[0-9]{4}-[0-9]{4})"
                 />
               </div>
               <div className="space-y-2">

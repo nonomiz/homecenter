@@ -85,7 +85,9 @@ export default function StoreDetailPage() {
               店舗説明
             </div>
             <div className="border p-4 min-h-[120px] mb-8">
-              <div className="text-base">{store.descriptions || ""}</div>
+              <div className="text-base">
+                <pre className="font-sans whitespace-pre-wrap">{store.descriptions || ""}</pre>
+              </div>
             </div>
           </div>
           <div className="flex flex-col md:flex-row gap-4 justify-evenly mt-12">
