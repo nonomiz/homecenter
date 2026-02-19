@@ -69,14 +69,14 @@ export function StoreMap({ address, className = "", showTitle = true, showMarker
     : `https://www.google.com/maps?q=${encodedAddress}&output=embed&hl=ja`;
 
   return (
-    <div className={className}>
+    <div className={`min-w-0 w-full max-w-full overflow-hidden ${className}`}>
       {showTitle && (
         <div className="text-lg font-medium mb-2 flex items-center gap-2">
           <Map className="h-5 w-5 shrink-0" />
           地図
         </div>
       )}
-      <div className="border rounded-lg overflow-hidden aspect-video min-h-[240px] bg-muted relative">
+      <div className="border rounded-lg overflow-hidden aspect-video min-h-[240px] w-full max-w-full bg-muted relative">
         {showMarker && geocodeLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-muted/80 z-10 text-sm text-muted-foreground rounded-lg">
             地図を読み込み中...
