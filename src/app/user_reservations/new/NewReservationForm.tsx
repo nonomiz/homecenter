@@ -58,8 +58,8 @@ export default function NewReservationForm() {
   })
   const [calendarOpen, setCalendarOpen] = useState(false)
 
-  // 운영시간 09:00 ~ 20:00
-  const timeSlots = Array.from({ length: 12 }, (_, i) => {
+  // 운영시간 09:00 ~ 17:00
+  const timeSlots = Array.from({ length: 9 }, (_, i) => {
     const hour = i + 9
     return `${hour.toString().padStart(2, "0")}:00`
   })
